@@ -1,0 +1,189 @@
+From patchwork Wed Aug 21 21:54:56 2024
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Chris Morgan <macroalpha82@gmail.com>
+X-Patchwork-Id: 13772193
+Return-Path: 
+ <linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E2E00C52D7C
+	for <linux-arm-kernel@archiver.kernel.org>;
+ Wed, 21 Aug 2024 22:08:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:List-Subscribe:List-Help
+	:List-Post:List-Archive:List-Unsubscribe:List-Id:Content-Transfer-Encoding:
+	MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+	Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
+	bh=IKDNW6bXNlNSyXqPzsgaizF0W6jVGjlSVIlGtBFqzzU=; b=I2RbYPrUWeNAHsrUacLeKgYq2w
+	f1cVWTt8e37XSuv8sZGQBTfu9FBzqzuabIuI8M89YkS08R/NM5EKmMwIMiWWKHWMp3rvReXKlMCYD
+	g7ZO504sBFtytsQjSOpKMM3nYsTvVLLRdSYH/jNs4dY7ovZtiJU2GXW7s5Z1vND0TaXD0pPuo/H8W
+	TxkvRnC3xNkmwCPEJOmzy4ehIkeIVAObJuDNSoeOm8ufXEuxdUKsDFf9uBLQBEOqC9psBzBdIDsD8
+	sLs30zZgqfdng4UfM0NXxyA4gdy8EYaYZZcm/ilJUu6TVzM3ARec2kPwtQyVbGavqdW4yZaAVFP+i
+	VFC54Djw==;
+Received: from localhost ([::1] helo=bombadil.infradead.org)
+	by bombadil.infradead.org with esmtp (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtVZ-0000000AVub-3YBL;
+	Wed, 21 Aug 2024 22:08:49 +0000
+Received: from mail-oi1-x22b.google.com ([2607:f8b0:4864:20::22b])
+	by bombadil.infradead.org with esmtps (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtKn-0000000AU9b-1uuv
+	for linux-arm-kernel@lists.infradead.org;
+	Wed, 21 Aug 2024 21:57:43 +0000
+Received: by mail-oi1-x22b.google.com with SMTP id
+ 5614622812f47-3db1eb76702so108047b6e.0
+        for <linux-arm-kernel@lists.infradead.org>;
+ Wed, 21 Aug 2024 14:57:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724277461; x=1724882261;
+ darn=lists.infradead.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=IKDNW6bXNlNSyXqPzsgaizF0W6jVGjlSVIlGtBFqzzU=;
+        b=NXTDNRVN1qIxvse3+mB5IjpKK8YNjpWMgfLY5tiM8zk5K8bY1PiGRIfCHpCeQciT98
+         MbnORSeTtAx/XaCRPUb4XpLGh+2hH00x6yYB4Lq9fAobfF69mt+An//1B52r+Nfv8srW
+         7JhLQgN8+w03DxPN5Yp/QRdxHUeVXLn4X55TnXK8Fqgq1iC7iv7mxMy3zoB6lhLhG0PZ
+         Enb9ZTtAsETLYPRpI2Q9uTZ8Lp/m9zbyI6FF3NkSV9JmzR/uLqkhaen1zLCsog2vLBvf
+         6Ne5w2LL0Hd8VfmAEAx78cC2Eb4kWbHOdeNogAccL01BguSYUrWl2h+6V+agAksy7gN9
+         g44A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724277461; x=1724882261;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=IKDNW6bXNlNSyXqPzsgaizF0W6jVGjlSVIlGtBFqzzU=;
+        b=HWVA9moGz2/gv/ShR3SrX9VztjunJyFEHZAAQC9EnOFWyEhE4nMws7PxnRuLEB+5Wy
+         PhqaxgSAbusOLeSAv2fteC3etWecHbVZevgoID876KS8UlUxQxRhBCpzRjwZ8iRnNHtv
+         jzI1CgjC4Ha5zYv1jjP7mDzdKgwIjEyDK5iB32F2/SLapWw2s2H0ZrxHmcJ9q2fjDqsr
+         HCU8fEz0J1T8Japj9ckoWBOsfPeYqhLt/IbcDAC+qMl3NdfSkcoAbIHNAWqlt2xB+gl+
+         0Gl93K5SB0t/dz0bu79UHY/Q7BznxGb41Llu0z9by5mmh429SqjeBdo2wy+HOuKfZw8y
+         JT+A==
+X-Forwarded-Encrypted: i=1;
+ AJvYcCUdZEDbYed9fjKqHIfM2Ht/gheLyp8tH9amZDBkIAm3Bp2992xJB/VrRoWmhK2JZt45jGMrBig8rOf4XSzwye5y@lists.infradead.org
+X-Gm-Message-State: AOJu0Yxw8U/VlIdNzhuZgM2+oT16q5eBVLXfDXow4GYFkdhuhlC54SBX
+	lGzjIWOTVNG9BM8tvlJr+AWIDXRXN9gvRR53kB2oqlZb404olWYK
+X-Google-Smtp-Source: 
+ AGHT+IEot75d+ugH+I/XEKDoM+SkcrQKtwBcwYYvPfnFSXY6xNGTuXU9+zWMvMu4JO0C2GONh/4oUw==
+X-Received: by 2002:a05:6808:1892:b0:3d6:2ff3:937 with SMTP id
+ 5614622812f47-3de1957157cmr4703770b6e.40.1724277460736;
+        Wed, 21 Aug 2024 14:57:40 -0700 (PDT)
+Received: from localhost.localdomain
+ ([2600:1700:fb0:1bcf:81a9:2325:e0f7:7376])
+        by smtp.gmail.com with ESMTPSA id
+ 5614622812f47-3de225555b6sm47070b6e.17.2024.08.21.14.57.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Aug 2024 14:57:40 -0700 (PDT)
+From: Chris Morgan <macroalpha82@gmail.com>
+To: linux-sunxi@lists.linux.dev
+Cc: linux-pm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	quentin.schulz@free-electrons.com,
+	mripard@kernel.org,
+	tgamblin@baylibre.com,
+	aidanmacdonald.0x0@gmail.com,
+	u.kleine-koenig@pengutronix.de,
+	lee@kernel.org,
+	samuel@sholland.org,
+	jernej.skrabec@gmail.com,
+	sre@kernel.org,
+	wens@csie.org,
+	conor+dt@kernel.org,
+	krzk+dt@kernel.org,
+	robh@kernel.org,
+	lars@metafoo.de,
+	jic23@kernel.org,
+	jonathan.cameron@huawei.com,
+	Chris Morgan <macromorgan@hotmail.com>
+Subject: [PATCH V4 15/15] arm64: dts: allwinner: h700: Add charger for
+ Anbernic RG35XX
+Date: Wed, 21 Aug 2024 16:54:56 -0500
+Message-Id: <20240821215456.962564-16-macroalpha82@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240821215456.962564-1-macroalpha82@gmail.com>
+References: <20240821215456.962564-1-macroalpha82@gmail.com>
+MIME-Version: 1.0
+X-CRM114-Version: 20100106-BlameMichelson ( TRE 0.8.0 (BSD) ) MR-646709E3 
+X-CRM114-CacheID: sfid-20240821_145741_526507_D5DEBB34 
+X-CRM114-Status: GOOD (  12.20  )
+X-BeenThere: linux-arm-kernel@lists.infradead.org
+X-Mailman-Version: 2.1.34
+Precedence: list
+List-Id: <linux-arm-kernel.lists.infradead.org>
+List-Unsubscribe: 
+ <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: 
+ <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: 
+ linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+
+From: Chris Morgan <macromorgan@hotmail.com>
+
+Add the necessary nodes for the AXP717 to allow for monitoring the USB
+and battery charger.
+
+Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+---
+ .../sun50i-h700-anbernic-rg35xx-2024.dts      | 21 +++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h700-anbernic-rg35xx-2024.dts b/arch/arm64/boot/dts/allwinner/sun50i-h700-anbernic-rg35xx-2024.dts
+index afb49e65859f..83b5c03b1bb8 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h700-anbernic-rg35xx-2024.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h700-anbernic-rg35xx-2024.dts
+@@ -21,6 +21,12 @@ aliases {
+ 		serial0 = &uart0;
+ 	};
+ 
++	battery: battery {
++		compatible = "simple-battery";
++		constant-charge-current-max-microamp = <1024000>;
++		voltage-max-design-microvolt = <4200000>;
++	};
++
+ 	chosen {
+ 		stdout-path = "serial0:115200n8";
+ 	};
+@@ -217,6 +223,16 @@ axp717: pmic@3a3 {
+ 		vin3-supply = <&reg_vcc5v>;
+ 		vin4-supply = <&reg_vcc5v>;
+ 
++		axp_adc: adc {
++			compatible = "x-powers,axp717-adc";
++			#io-channel-cells = <1>;
++		};
++
++		battery_power: battery-power {
++			compatible = "x-powers,axp717-battery-power-supply";
++			monitored-battery = <&battery>;
++		};
++
+ 		regulators {
+ 			reg_dcdc1: dcdc1 {
+ 				regulator-always-on;
+@@ -307,6 +323,11 @@ reg_cpusldo: cpusldo {
+ 				/* unused */
+ 			};
+ 		};
++
++		usb_power: usb-power {
++			compatible = "x-powers,axp717-usb-power-supply";
++			input-current-limit-microamp = <1500000>;
++		};
+ 	};
+ };
+ 

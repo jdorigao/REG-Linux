@@ -1,0 +1,503 @@
+From patchwork Wed Aug 21 21:54:54 2024
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Chris Morgan <macroalpha82@gmail.com>
+X-Patchwork-Id: 13772191
+Return-Path: 
+ <linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8AB2DC52D7C
+	for <linux-arm-kernel@archiver.kernel.org>;
+ Wed, 21 Aug 2024 22:07:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:List-Subscribe:List-Help
+	:List-Post:List-Archive:List-Unsubscribe:List-Id:Content-Transfer-Encoding:
+	MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+	Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
+	bh=wzwbUBXpQ31q7HNv2dH+jmh+P3HKqC3um14cKU6HarE=; b=XVHCp2USnxpALU1+3Uj2xs6TDn
+	emrOV8V1wjtPYhYcKBJKN0wTkF90UucuQBcz5F8/coIPKBGgiTDfjAD5TpEA8YCDHP7D6GJu4SKe/
+	rOydkZJyvcd+0bZvAS6YXmiuQ5sNu1ID2z2EN3p+3/mahHmYMz80bkNBy+80KXe6p0sJ3MXL8oeAu
+	/Ij7VnvvZ5yke+MtIy2g7ii2Vy8JnhbZW8lPz4XJ0yZMLLM7kky/2csggalsqTRtGOo1H7A456Z/g
+	Xd7JWJc/Zy6zRBwkxc/fcXvAbs9CyKgwt2djRma6pyvAqGVJwW/bLW0KYblBtPyyn5z2PHX7racbZ
+	/piatDpw==;
+Received: from localhost ([::1] helo=bombadil.infradead.org)
+	by bombadil.infradead.org with esmtp (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtUD-0000000AVg8-1mmD;
+	Wed, 21 Aug 2024 22:07:25 +0000
+Received: from mail-oi1-x233.google.com ([2607:f8b0:4864:20::233])
+	by bombadil.infradead.org with esmtps (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtKm-0000000AU8s-0OJq
+	for linux-arm-kernel@lists.infradead.org;
+	Wed, 21 Aug 2024 21:57:41 +0000
+Received: by mail-oi1-x233.google.com with SMTP id
+ 5614622812f47-3db23a60850so87497b6e.0
+        for <linux-arm-kernel@lists.infradead.org>;
+ Wed, 21 Aug 2024 14:57:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724277459; x=1724882259;
+ darn=lists.infradead.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wzwbUBXpQ31q7HNv2dH+jmh+P3HKqC3um14cKU6HarE=;
+        b=fXFDR+fXzcuFYuJ+hrIDqcvDGmJakK18rW20AWGf06skzliJougLmq6js9u8PPm6j9
+         /u9qc7jamnumdNTXnr9TradGrpSBB2GZ/AvU80XXhMk4Z1KeKG8NIRcxplEeg7zCQtSA
+         6tp1lA7pygsO2EUpAsD9e9hxrv6MDlYhBxm764OiZbQLl4OIRsUEtc4WR4h5V77LhwYW
+         w0OBNbgp9/b+eObJ2pmaPQthtFNgTnOG5miVh00CNeIW1/NbIGAe+Mx1TMYIGlX1xOJ4
+         s9hZsjM3M1x2KVQhc2WVTHMf6rzTp6QbDKKYnqLqV8LvrT0sZgZcP4olUjAR2zjEeWgG
+         7DmQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724277459; x=1724882259;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wzwbUBXpQ31q7HNv2dH+jmh+P3HKqC3um14cKU6HarE=;
+        b=PsF/aC2QcmIUSOqy7XLxve2T4Px/Jj0UQOKCNw7nPSKBxiUvoYdKNG+LkBoRlbJ/wH
+         BoaIa15SuiRC1Sb9mBszinOJ23Us4sXho8szF3sE7ZGWYnLHpXVVL5qC0uLaBr3xCYle
+         Ci+i6ss8MKleI8rICfQMqQLW4or/oJMgjjLciDbuykQtPMgst5DxB4/cEJqi3L+Sumkd
+         5MZ3h405gITFs0awunEbsHmPNcSLt5wq51q644U/bRcUAhMtmxayVDtpIjPqMzI/7UBb
+         l9kOifHbqTjcPaWQXAkrzlBiTDxlmtvYL1HbqJgSrPgYG+/ieAPDYVOBhlzFtZ30oMcC
+         vyYg==
+X-Forwarded-Encrypted: i=1;
+ AJvYcCUjiuWOfyu5swMV9bVksdsmo7SCvi7PA1uybwk+4GKdQLInhDLu1hKiUG+A93UZ9CEm3gUNO1Lo2jx5tnrfUGBz@lists.infradead.org
+X-Gm-Message-State: AOJu0YyOHEi9H4cP0sK7D0ceJUyn9sr2Tc6RUWNThEXD8kXvCtyi2dV2
+	lIDwCVrRjYdHYEz301QOK1JMFI7wN/ZMuCi8P4mYwRIl44MjPJ90
+X-Google-Smtp-Source: 
+ AGHT+IEmeHydqhJY3UklnOsjpdPCZB7Pp0GjV6AKzGOzJR5In+g2CVsY04kam57ncntLdg6QcPqDmQ==
+X-Received: by 2002:a05:6808:10cc:b0:3dd:2b80:23bf with SMTP id
+ 5614622812f47-3de19c75beamr3840823b6e.9.1724277459240;
+        Wed, 21 Aug 2024 14:57:39 -0700 (PDT)
+Received: from localhost.localdomain
+ ([2600:1700:fb0:1bcf:81a9:2325:e0f7:7376])
+        by smtp.gmail.com with ESMTPSA id
+ 5614622812f47-3de225555b6sm47070b6e.17.2024.08.21.14.57.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Aug 2024 14:57:38 -0700 (PDT)
+From: Chris Morgan <macroalpha82@gmail.com>
+To: linux-sunxi@lists.linux.dev
+Cc: linux-pm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	quentin.schulz@free-electrons.com,
+	mripard@kernel.org,
+	tgamblin@baylibre.com,
+	aidanmacdonald.0x0@gmail.com,
+	u.kleine-koenig@pengutronix.de,
+	lee@kernel.org,
+	samuel@sholland.org,
+	jernej.skrabec@gmail.com,
+	sre@kernel.org,
+	wens@csie.org,
+	conor+dt@kernel.org,
+	krzk+dt@kernel.org,
+	robh@kernel.org,
+	lars@metafoo.de,
+	jic23@kernel.org,
+	jonathan.cameron@huawei.com,
+	Chris Morgan <macromorgan@hotmail.com>,
+	Philippe Simons <simons.philippe@gmail.com>
+Subject: [PATCH V4 13/15] power: supply: axp20x_usb_power: Add support for
+ AXP717
+Date: Wed, 21 Aug 2024 16:54:54 -0500
+Message-Id: <20240821215456.962564-14-macroalpha82@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240821215456.962564-1-macroalpha82@gmail.com>
+References: <20240821215456.962564-1-macroalpha82@gmail.com>
+MIME-Version: 1.0
+X-CRM114-Version: 20100106-BlameMichelson ( TRE 0.8.0 (BSD) ) MR-646709E3 
+X-CRM114-CacheID: sfid-20240821_145740_163992_E56768D7 
+X-CRM114-Status: GOOD (  22.92  )
+X-BeenThere: linux-arm-kernel@lists.infradead.org
+X-Mailman-Version: 2.1.34
+Precedence: list
+List-Id: <linux-arm-kernel.lists.infradead.org>
+List-Unsubscribe: 
+ <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: 
+ <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: 
+ linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+
+From: Chris Morgan <macromorgan@hotmail.com>
+
+Add support for the AXP717 PMIC. The AXP717 PMIC allows for detection
+of USB type like the AXP813, but has little in common otherwise with
+the other AXP PMICs. The USB charger is able to provide between
+100000uA and 3250000uA of power, and can measure the VBUS input in mV
+with up to 14 bits of precision.
+
+Tested-by: Philippe Simons <simons.philippe@gmail.com>
+Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+---
+ drivers/power/supply/axp20x_usb_power.c | 244 ++++++++++++++++++++++++
+ 1 file changed, 244 insertions(+)
+
+diff --git a/drivers/power/supply/axp20x_usb_power.c b/drivers/power/supply/axp20x_usb_power.c
+index 69fbb5861934..41426fca8cfc 100644
+--- a/drivers/power/supply/axp20x_usb_power.c
++++ b/drivers/power/supply/axp20x_usb_power.c
+@@ -30,8 +30,13 @@
+ #define AXP20X_PWR_STATUS_VBUS_PRESENT	BIT(5)
+ #define AXP20X_PWR_STATUS_VBUS_USED	BIT(4)
+ 
++#define AXP717_PWR_STATUS_VBUS_GOOD	BIT(5)
++
+ #define AXP20X_USB_STATUS_VBUS_VALID	BIT(2)
+ 
++#define AXP717_PMU_FAULT_VBUS		BIT(5)
++#define AXP717_PMU_FAULT_VSYS		BIT(3)
++
+ #define AXP20X_VBUS_VHOLD_uV(b)		(4000000 + (((b) >> 3) & 7) * 100000)
+ #define AXP20X_VBUS_VHOLD_MASK		GENMASK(5, 3)
+ #define AXP20X_VBUS_VHOLD_OFFSET	3
+@@ -39,6 +44,12 @@
+ #define AXP20X_ADC_EN1_VBUS_CURR	BIT(2)
+ #define AXP20X_ADC_EN1_VBUS_VOLT	BIT(3)
+ 
++#define AXP717_INPUT_VOL_LIMIT_MASK	GENMASK(3, 0)
++#define AXP717_INPUT_CUR_LIMIT_MASK	GENMASK(5, 0)
++#define AXP717_ADC_DATA_MASK		GENMASK(14, 0)
++
++#define AXP717_ADC_EN_VBUS_VOLT		BIT(2)
++
+ /*
+  * Note do not raise the debounce time, we must report Vusb high within
+  * 100ms otherwise we get Vbus errors in musb.
+@@ -143,6 +154,24 @@ static void axp20x_usb_power_poll_vbus(struct work_struct *work)
+ 		mod_delayed_work(system_power_efficient_wq, &power->vbus_detect, DEBOUNCE_TIME);
+ }
+ 
++static void axp717_usb_power_poll_vbus(struct work_struct *work)
++{
++	struct axp20x_usb_power *power =
++		container_of(work, struct axp20x_usb_power, vbus_detect.work);
++	unsigned int val;
++	int ret;
++
++	ret = regmap_read(power->regmap, AXP717_ON_INDICATE, &val);
++	if (ret)
++		return;
++
++	val &= AXP717_PWR_STATUS_VBUS_GOOD;
++	if (val != power->old_status)
++		power_supply_changed(power->supply);
++
++	power->old_status = val;
++}
++
+ static int axp20x_get_usb_type(struct axp20x_usb_power *power,
+ 			       union power_supply_propval *val)
+ {
+@@ -288,6 +317,91 @@ static int axp20x_usb_power_get_property(struct power_supply *psy,
+ 	return 0;
+ }
+ 
++static int axp717_usb_power_get_property(struct power_supply *psy,
++	enum power_supply_property psp, union power_supply_propval *val)
++{
++	struct axp20x_usb_power *power = power_supply_get_drvdata(psy);
++	unsigned int v;
++	int ret;
++
++	switch (psp) {
++	case POWER_SUPPLY_PROP_HEALTH:
++		val->intval = POWER_SUPPLY_HEALTH_GOOD;
++		ret = regmap_read(power->regmap, AXP717_ON_INDICATE, &v);
++		if (ret)
++			return ret;
++
++		if (!(v & AXP717_PWR_STATUS_VBUS_GOOD))
++			val->intval = POWER_SUPPLY_HEALTH_UNKNOWN;
++
++		ret = regmap_read(power->regmap, AXP717_PMU_FAULT_VBUS, &v);
++		if (ret)
++			return ret;
++
++		v &= (AXP717_PMU_FAULT_VBUS | AXP717_PMU_FAULT_VSYS);
++		if (v) {
++			val->intval = POWER_SUPPLY_HEALTH_OVERVOLTAGE;
++			regmap_write(power->regmap, AXP717_PMU_FAULT_VBUS, v);
++		}
++
++		break;
++	case POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT:
++		ret = regmap_read(power->regmap, AXP717_INPUT_CUR_LIMIT_CTRL, &v);
++		if (ret)
++			return ret;
++
++		/* 50ma step size with 100ma offset. */
++		v &= AXP717_INPUT_CUR_LIMIT_MASK;
++		val->intval = (v * 50000) + 100000;
++		break;
++	case POWER_SUPPLY_PROP_ONLINE:
++	case POWER_SUPPLY_PROP_PRESENT:
++		ret = regmap_read(power->regmap, AXP717_ON_INDICATE, &v);
++		if (ret)
++			return ret;
++		val->intval = !!(v & AXP717_PWR_STATUS_VBUS_GOOD);
++		break;
++	case POWER_SUPPLY_PROP_USB_TYPE:
++		return axp20x_get_usb_type(power, val);
++	case POWER_SUPPLY_PROP_VOLTAGE_MIN:
++		ret = regmap_read(power->regmap, AXP717_INPUT_VOL_LIMIT_CTRL, &v);
++		if (ret)
++			return ret;
++
++		/* 80mv step size with 3.88v offset. */
++		v &= AXP717_INPUT_VOL_LIMIT_MASK;
++		val->intval = (v * 80000) + 3880000;
++		break;
++	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
++		if (IS_ENABLED(CONFIG_AXP20X_ADC)) {
++			ret = iio_read_channel_processed(power->vbus_v,
++							 &val->intval);
++			if (ret)
++				return ret;
++
++			/*
++			 * IIO framework gives mV but Power Supply framework
++			 * gives uV.
++			 */
++			val->intval *= 1000;
++			return 0;
++		}
++
++		ret = axp20x_read_variable_width(power->regmap,
++						 AXP717_VBUS_V_H, 16);
++		if (ret < 0)
++			return ret;
++
++		val->intval = (ret % AXP717_ADC_DATA_MASK) * 1000;
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	return 0;
++
++}
++
+ static int axp20x_usb_power_set_voltage_min(struct axp20x_usb_power *power,
+ 					    int intval)
+ {
+@@ -314,6 +428,22 @@ static int axp20x_usb_power_set_voltage_min(struct axp20x_usb_power *power,
+ 	return -EINVAL;
+ }
+ 
++static int axp717_usb_power_set_voltage_min(struct axp20x_usb_power *power,
++					    int intval)
++{
++	int val;
++
++	/* Minimum value of 3.88v and maximum of 5.08v. */
++	if (intval < 3880000 || intval > 5080000)
++		return -EINVAL;
++
++	/* step size of 80ma with 3.88v offset. */
++	val = (intval - 3880000) / 80000;
++	return regmap_update_bits(power->regmap,
++				  AXP717_INPUT_VOL_LIMIT_CTRL,
++				  AXP717_INPUT_VOL_LIMIT_MASK, val);
++}
++
+ static int axp20x_usb_power_set_input_current_limit(struct axp20x_usb_power *power,
+ 						    int intval)
+ {
+@@ -354,6 +484,29 @@ static int axp20x_usb_power_set_input_current_limit(struct axp20x_usb_power *pow
+ 	return regmap_field_write(power->curr_lim_fld, reg);
+ }
+ 
++static int axp717_usb_power_set_input_current_limit(struct axp20x_usb_power *power,
++						    int intval)
++{
++	int tmp;
++
++	/* Minimum value of 100mA and maximum value of 3.25A*/
++	if (intval < 100000 || intval > 3250000)
++		return -EINVAL;
++
++	if (power->max_input_cur && (intval > power->max_input_cur)) {
++		dev_warn(power->dev,
++			 "reqested current %d clamped to max current %d\n",
++			 intval, power->max_input_cur);
++		intval = power->max_input_cur;
++	}
++
++	/* Minimum value of 100mA with step size of 50mA. */
++	tmp = (intval - 100000) / 50000;
++	return regmap_update_bits(power->regmap,
++				  AXP717_INPUT_CUR_LIMIT_CTRL,
++				  AXP717_INPUT_CUR_LIMIT_MASK, tmp);
++}
++
+ static int axp20x_usb_power_set_property(struct power_supply *psy,
+ 					 enum power_supply_property psp,
+ 					 const union power_supply_propval *val)
+@@ -376,6 +529,24 @@ static int axp20x_usb_power_set_property(struct power_supply *psy,
+ 	default:
+ 		return -EINVAL;
+ 	}
++}
++
++static int axp717_usb_power_set_property(struct power_supply *psy,
++					 enum power_supply_property psp,
++					 const union power_supply_propval *val)
++{
++	struct axp20x_usb_power *power = power_supply_get_drvdata(psy);
++
++	switch (psp) {
++	case POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT:
++		return axp717_usb_power_set_input_current_limit(power, val->intval);
++
++	case POWER_SUPPLY_PROP_VOLTAGE_MIN:
++		return axp717_usb_power_set_voltage_min(power, val->intval);
++
++	default:
++		return -EINVAL;
++	}
+ 
+ 	return -EINVAL;
+ }
+@@ -399,6 +570,13 @@ static int axp20x_usb_power_prop_writeable(struct power_supply *psy,
+ 	       psp == POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT;
+ }
+ 
++static int axp717_usb_power_prop_writeable(struct power_supply *psy,
++					   enum power_supply_property psp)
++{
++	return psp == POWER_SUPPLY_PROP_VOLTAGE_MIN ||
++	       psp == POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT;
++}
++
+ static int axp20x_configure_iio_channels(struct platform_device *pdev,
+ 					 struct axp20x_usb_power *power)
+ {
+@@ -419,6 +597,19 @@ static int axp20x_configure_iio_channels(struct platform_device *pdev,
+ 	return 0;
+ }
+ 
++static int axp717_configure_iio_channels(struct platform_device *pdev,
++					 struct axp20x_usb_power *power)
++{
++	power->vbus_v = devm_iio_channel_get(&pdev->dev, "vbus_v");
++	if (IS_ERR(power->vbus_v)) {
++		if (PTR_ERR(power->vbus_v) == -ENODEV)
++			return -EPROBE_DEFER;
++		return PTR_ERR(power->vbus_v);
++	}
++
++	return 0;
++}
++
+ static int axp20x_configure_adc_registers(struct axp20x_usb_power *power)
+ {
+ 	/* Enable vbus voltage and current measurement */
+@@ -429,6 +620,14 @@ static int axp20x_configure_adc_registers(struct axp20x_usb_power *power)
+ 				  AXP20X_ADC_EN1_VBUS_VOLT);
+ }
+ 
++static int axp717_configure_adc_registers(struct axp20x_usb_power *power)
++{
++	/* Enable vbus voltage measurement  */
++	return regmap_update_bits(power->regmap, AXP717_ADC_CH_EN_CONTROL,
++				  AXP717_ADC_EN_VBUS_VOLT,
++				  AXP717_ADC_EN_VBUS_VOLT);
++}
++
+ static enum power_supply_property axp20x_usb_power_properties[] = {
+ 	POWER_SUPPLY_PROP_HEALTH,
+ 	POWER_SUPPLY_PROP_PRESENT,
+@@ -447,6 +646,16 @@ static enum power_supply_property axp22x_usb_power_properties[] = {
+ 	POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT,
+ };
+ 
++static enum power_supply_property axp717_usb_power_properties[] = {
++	POWER_SUPPLY_PROP_HEALTH,
++	POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT,
++	POWER_SUPPLY_PROP_ONLINE,
++	POWER_SUPPLY_PROP_PRESENT,
++	POWER_SUPPLY_PROP_USB_TYPE,
++	POWER_SUPPLY_PROP_VOLTAGE_MIN,
++	POWER_SUPPLY_PROP_VOLTAGE_NOW,
++};
++
+ static enum power_supply_property axp813_usb_power_properties[] = {
+ 	POWER_SUPPLY_PROP_HEALTH,
+ 	POWER_SUPPLY_PROP_PRESENT,
+@@ -483,6 +692,18 @@ static const struct power_supply_desc axp22x_usb_power_desc = {
+ 	.set_property = axp20x_usb_power_set_property,
+ };
+ 
++static const struct power_supply_desc axp717_usb_power_desc = {
++	.name = "axp20x-usb",
++	.type = POWER_SUPPLY_TYPE_USB,
++	.properties = axp717_usb_power_properties,
++	.num_properties = ARRAY_SIZE(axp717_usb_power_properties),
++	.property_is_writeable = axp717_usb_power_prop_writeable,
++	.get_property = axp717_usb_power_get_property,
++	.set_property = axp717_usb_power_set_property,
++	.usb_types = axp813_usb_types,
++	.num_usb_types = ARRAY_SIZE(axp813_usb_types),
++};
++
+ static const struct power_supply_desc axp813_usb_power_desc = {
+ 	.name = "axp20x-usb",
+ 	.type = POWER_SUPPLY_TYPE_USB,
+@@ -507,6 +728,12 @@ static const char * const axp22x_irq_names[] = {
+ 	"VBUS_REMOVAL",
+ };
+ 
++static const char * const axp717_irq_names[] = {
++	"VBUS_PLUGIN",
++	"VBUS_REMOVAL",
++	"VBUS_OVER_V",
++};
++
+ static int axp192_usb_curr_lim_table[] = {
+ 	-1,
+ 	-1,
+@@ -594,6 +821,20 @@ static const struct axp_data axp223_data = {
+ 	.axp20x_cfg_adc_reg = axp20x_configure_adc_registers,
+ };
+ 
++static const struct axp_data axp717_data = {
++	.power_desc     = &axp717_usb_power_desc,
++	.irq_names      = axp717_irq_names,
++	.num_irq_names  = ARRAY_SIZE(axp717_irq_names),
++	.curr_lim_fld   = REG_FIELD(AXP717_INPUT_CUR_LIMIT_CTRL, 0, 5),
++	.usb_bc_en_bit  = REG_FIELD(AXP717_MODULE_EN_CONTROL_1, 4, 4),
++	.usb_bc_det_fld = REG_FIELD(AXP717_BC_DETECT, 5, 7),
++	.vbus_mon_bit   = REG_FIELD(AXP717_ADC_CH_EN_CONTROL, 2, 2),
++	.vbus_needs_polling = false,
++	.axp20x_read_vbus = &axp717_usb_power_poll_vbus,
++	.axp20x_cfg_iio_chan = axp717_configure_iio_channels,
++	.axp20x_cfg_adc_reg = axp717_configure_adc_registers,
++};
++
+ static const struct axp_data axp813_data = {
+ 	.power_desc	= &axp813_usb_power_desc,
+ 	.irq_names	= axp22x_irq_names,
+@@ -821,6 +1062,9 @@ static const struct of_device_id axp20x_usb_power_match[] = {
+ 	}, {
+ 		.compatible = "x-powers,axp223-usb-power-supply",
+ 		.data = &axp223_data,
++	}, {
++		.compatible = "x-powers,axp717-usb-power-supply",
++		.data = &axp717_data,
+ 	}, {
+ 		.compatible = "x-powers,axp813-usb-power-supply",
+ 		.data = &axp813_data,

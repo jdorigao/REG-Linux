@@ -1,0 +1,259 @@
+From patchwork Wed Aug 21 21:54:52 2024
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Chris Morgan <macroalpha82@gmail.com>
+X-Patchwork-Id: 13772189
+Return-Path: 
+ <linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1645AC52D6F
+	for <linux-arm-kernel@archiver.kernel.org>;
+ Wed, 21 Aug 2024 22:06:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:List-Subscribe:List-Help
+	:List-Post:List-Archive:List-Unsubscribe:List-Id:Content-Transfer-Encoding:
+	MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+	Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
+	bh=8/L+1F4zI2xR0RRUKLsollddkiZWe3KRdF8cSYPvQkI=; b=d2HkE//xzA0G5mINezEJT5GVZe
+	LC89EHc9pVpBKN5WB1mrAoyJKTG+pJDOUcdwoGaJStR5q9U7u12ujgbXSEHcXVn+9bcc/cmXN7ere
+	0Zy2Qzpv6RQHvjFkmjKJkUExg1tgQhc19cvxn7a3NB1aRxo0jKZn6GuxZDGpx6Oggm40KLjHo1wBM
+	NZWn7vLjJHo6VA2U9mLPxrKCcBDeuVJGSTRwEHaDOoEdQLlUeUv9w9s+/6qYzkPK4VD6kpA3oBa4u
+	EiXrYtPbUe/jJMyidBMQgcTpUnds9mLGAUrk1qeYPY2K6fKUi3ipu0XJ9fAHiUIGyyT0I7+44n9Ne
+	W8APVqxw==;
+Received: from localhost ([::1] helo=bombadil.infradead.org)
+	by bombadil.infradead.org with esmtp (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtSr-0000000AVTF-3Rbo;
+	Wed, 21 Aug 2024 22:06:01 +0000
+Received: from mail-oi1-x230.google.com ([2607:f8b0:4864:20::230])
+	by bombadil.infradead.org with esmtps (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtKk-0000000AU88-3hBg
+	for linux-arm-kernel@lists.infradead.org;
+	Wed, 21 Aug 2024 21:57:40 +0000
+Received: by mail-oi1-x230.google.com with SMTP id
+ 5614622812f47-3db12a2f530so92220b6e.1
+        for <linux-arm-kernel@lists.infradead.org>;
+ Wed, 21 Aug 2024 14:57:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724277458; x=1724882258;
+ darn=lists.infradead.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8/L+1F4zI2xR0RRUKLsollddkiZWe3KRdF8cSYPvQkI=;
+        b=ey6t/NiWYFWziulUHegLnExxecJX9J1EFaa1xsNVC/p3g0cByLcvXvfIDvRxYXv4Qx
+         Q2h6/AZMA4XBrxN0S7/fYEMTglSq4W6RFRjCK8pjA/SRMZQZ9Q6z6DgoKYW3sTo1H5zR
+         khSYZi4bXcUG390PBMEcAfgPgYT3wMQyCe6Pb6FXNYHij/tPCyunBV4Eu+hT6MFwrhIX
+         RaLzkAZciWBCre47AmleMqiShRw81bsbPLHAiYQuTX73Ux+h600a5D1ArnMYdbRwEcP2
+         ZqQ2jMOmD64h3y2k0FZkA3kEKeUk4z4lT17X5m4cblxF7R9aDocdf+TA+W89jXOSa6C8
+         qIag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724277458; x=1724882258;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8/L+1F4zI2xR0RRUKLsollddkiZWe3KRdF8cSYPvQkI=;
+        b=ugg3IWGrd8y0YiRd9hYR5lOmW7KzmE0M1MFklpChFsYp03MHqA7SE2SlquWdInm+Bl
+         UWqt84l1M6y6MzJZ/jSJoXO0t2jdrcss92oSBUhFZrJB+0meitIaM9vNERituiiHa/ho
+         ntltWbjk4/cJ8tO3/QibShkFjjWRP4E0dFktgrDlnazMTKeOcObcW7gqOEXpYb1ntfVS
+         AVgcKkVkzTr+qIY6pl8qjbiyItf2EfmN+adPbm3ilsQpf7lnQHVKPjLq5ytmKH7E5cLh
+         eHEPYL60OVYeiSwzyEYon+/fLNFFWhL5IwG9rE4Ul/YF81afGVgSLRDFSk3IufIH6B00
+         Sr4w==
+X-Forwarded-Encrypted: i=1;
+ AJvYcCW9emI9LP0u9KplwqNGiJzc6eGq2Y7S6MDuVt40ogLV6grXinCPQh+bpKKMlvQc38n2w+bCpfhy4UA0De+Y5cOt@lists.infradead.org
+X-Gm-Message-State: AOJu0YwDGKqjQOgaikdlzQQAqoGR+1XA2sg5GZiI4nWopzDnMjRNA/Ar
+	x8808NaBhj99wHJ+2+ma5mQ4pkB4VK8bkzPRNgwZgjzyzCsbnaWd
+X-Google-Smtp-Source: 
+ AGHT+IGhrFvuL7dyQu3IcgXKKeTpaz1U3EOzYER3pTHvrhHmhzWAxc9pkysLN99haFIpxfz1sgm/aA==
+X-Received: by 2002:a05:6808:22a6:b0:3d9:24f8:7dd2 with SMTP id
+ 5614622812f47-3de19c75b27mr3972560b6e.6.1724277457716;
+        Wed, 21 Aug 2024 14:57:37 -0700 (PDT)
+Received: from localhost.localdomain
+ ([2600:1700:fb0:1bcf:81a9:2325:e0f7:7376])
+        by smtp.gmail.com with ESMTPSA id
+ 5614622812f47-3de225555b6sm47070b6e.17.2024.08.21.14.57.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Aug 2024 14:57:37 -0700 (PDT)
+From: Chris Morgan <macroalpha82@gmail.com>
+To: linux-sunxi@lists.linux.dev
+Cc: linux-pm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	quentin.schulz@free-electrons.com,
+	mripard@kernel.org,
+	tgamblin@baylibre.com,
+	aidanmacdonald.0x0@gmail.com,
+	u.kleine-koenig@pengutronix.de,
+	lee@kernel.org,
+	samuel@sholland.org,
+	jernej.skrabec@gmail.com,
+	sre@kernel.org,
+	wens@csie.org,
+	conor+dt@kernel.org,
+	krzk+dt@kernel.org,
+	robh@kernel.org,
+	lars@metafoo.de,
+	jic23@kernel.org,
+	jonathan.cameron@huawei.com,
+	Chris Morgan <macromorgan@hotmail.com>
+Subject: [PATCH V4 11/15] mfd: axp20x: Add ADC, BAT, and USB cells for AXP717
+Date: Wed, 21 Aug 2024 16:54:52 -0500
+Message-Id: <20240821215456.962564-12-macroalpha82@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240821215456.962564-1-macroalpha82@gmail.com>
+References: <20240821215456.962564-1-macroalpha82@gmail.com>
+MIME-Version: 1.0
+X-CRM114-Version: 20100106-BlameMichelson ( TRE 0.8.0 (BSD) ) MR-646709E3 
+X-CRM114-CacheID: sfid-20240821_145738_945732_47EA7D17 
+X-CRM114-Status: GOOD (  15.05  )
+X-BeenThere: linux-arm-kernel@lists.infradead.org
+X-Mailman-Version: 2.1.34
+Precedence: list
+List-Id: <linux-arm-kernel.lists.infradead.org>
+List-Unsubscribe: 
+ <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: 
+ <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: 
+ linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+
+From: Chris Morgan <macromorgan@hotmail.com>
+
+Add support for the AXP717 PMIC to utilize the ADC (for reading
+voltage, current, and temperature information from the PMIC) as well
+as the USB charger and battery.
+
+Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+---
+ drivers/mfd/axp20x.c       | 25 ++++++++++++++++++++++++-
+ include/linux/mfd/axp20x.h | 26 ++++++++++++++++++++++++++
+ 2 files changed, 50 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
+index dacd3c96c9f5..4051551757f2 100644
+--- a/drivers/mfd/axp20x.c
++++ b/drivers/mfd/axp20x.c
+@@ -209,13 +209,23 @@ static const struct regmap_access_table axp313a_volatile_table = {
+ };
+ 
+ static const struct regmap_range axp717_writeable_ranges[] = {
++	regmap_reg_range(AXP717_PMU_FAULT, AXP717_MODULE_EN_CONTROL_1),
++	regmap_reg_range(AXP717_MIN_SYS_V_CONTROL, AXP717_BOOST_CONTROL),
++	regmap_reg_range(AXP717_VSYS_V_POWEROFF, AXP717_VSYS_V_POWEROFF),
+ 	regmap_reg_range(AXP717_IRQ0_EN, AXP717_IRQ4_EN),
+ 	regmap_reg_range(AXP717_IRQ0_STATE, AXP717_IRQ4_STATE),
++	regmap_reg_range(AXP717_ICC_CHG_SET, AXP717_CV_CHG_SET),
+ 	regmap_reg_range(AXP717_DCDC_OUTPUT_CONTROL, AXP717_CPUSLDO_CONTROL),
++	regmap_reg_range(AXP717_ADC_CH_EN_CONTROL, AXP717_ADC_CH_EN_CONTROL),
++	regmap_reg_range(AXP717_ADC_DATA_SEL, AXP717_ADC_DATA_SEL),
+ };
+ 
+ static const struct regmap_range axp717_volatile_ranges[] = {
++	regmap_reg_range(AXP717_ON_INDICATE, AXP717_PMU_FAULT),
+ 	regmap_reg_range(AXP717_IRQ0_STATE, AXP717_IRQ4_STATE),
++	regmap_reg_range(AXP717_BATT_PERCENT_DATA, AXP717_BATT_PERCENT_DATA),
++	regmap_reg_range(AXP717_BATT_V_H, AXP717_BATT_CHRG_I_L),
++	regmap_reg_range(AXP717_ADC_DATA_H, AXP717_ADC_DATA_L),
+ };
+ 
+ static const struct regmap_access_table axp717_writeable_table = {
+@@ -308,6 +318,12 @@ static const struct resource axp22x_usb_power_supply_resources[] = {
+ 	DEFINE_RES_IRQ_NAMED(AXP22X_IRQ_VBUS_REMOVAL, "VBUS_REMOVAL"),
+ };
+ 
++static const struct resource axp717_usb_power_supply_resources[] = {
++	DEFINE_RES_IRQ_NAMED(AXP717_IRQ_VBUS_OVER_V, "VBUS_OVER_V"),
++	DEFINE_RES_IRQ_NAMED(AXP717_IRQ_VBUS_PLUGIN, "VBUS_PLUGIN"),
++	DEFINE_RES_IRQ_NAMED(AXP717_IRQ_VBUS_REMOVAL, "VBUS_REMOVAL"),
++};
++
+ /* AXP803 and AXP813/AXP818 share the same interrupts */
+ static const struct resource axp803_usb_power_supply_resources[] = {
+ 	DEFINE_RES_IRQ_NAMED(AXP803_IRQ_VBUS_PLUGIN, "VBUS_PLUGIN"),
+@@ -422,7 +438,7 @@ static const struct regmap_config axp717_regmap_config = {
+ 	.val_bits = 8,
+ 	.wr_table = &axp717_writeable_table,
+ 	.volatile_table = &axp717_volatile_table,
+-	.max_register = AXP717_CPUSLDO_CONTROL,
++	.max_register = AXP717_ADC_DATA_L,
+ 	.cache_type = REGCACHE_MAPLE,
+ };
+ 
+@@ -1024,6 +1040,13 @@ static struct mfd_cell axp313a_cells[] = {
+ static struct mfd_cell axp717_cells[] = {
+ 	MFD_CELL_NAME("axp20x-regulator"),
+ 	MFD_CELL_RES("axp20x-pek", axp717_pek_resources),
++	MFD_CELL_OF("axp717-adc",
++		    NULL, NULL, 0, 0, "x-powers,axp717-adc"),
++	MFD_CELL_OF("axp20x-usb-power-supply",
++		    axp717_usb_power_supply_resources, NULL, 0, 0,
++		    "x-powers,axp717-usb-power-supply"),
++	MFD_CELL_OF("axp20x-battery-power-supply",
++		    NULL, NULL, 0, 0, "x-powers,axp717-battery-power-supply"),
+ };
+ 
+ static const struct resource axp288_adc_resources[] = {
+diff --git a/include/linux/mfd/axp20x.h b/include/linux/mfd/axp20x.h
+index 8c0a33a2e9ce..9b7ef473adcb 100644
+--- a/include/linux/mfd/axp20x.h
++++ b/include/linux/mfd/axp20x.h
+@@ -115,6 +115,16 @@ enum axp20x_variants {
+ #define AXP313A_IRQ_STATE		0x21
+ 
+ #define AXP717_ON_INDICATE		0x00
++#define AXP717_PMU_STATUS_2		0x01
++#define AXP717_BC_DETECT		0x05
++#define AXP717_PMU_FAULT		0x08
++#define AXP717_MODULE_EN_CONTROL_1	0x0b
++#define AXP717_MIN_SYS_V_CONTROL	0x15
++#define AXP717_INPUT_VOL_LIMIT_CTRL	0x16
++#define AXP717_INPUT_CUR_LIMIT_CTRL	0x17
++#define AXP717_MODULE_EN_CONTROL_2	0x19
++#define AXP717_BOOST_CONTROL		0x1e
++#define AXP717_VSYS_V_POWEROFF		0x24
+ #define AXP717_IRQ0_EN			0x40
+ #define AXP717_IRQ1_EN			0x41
+ #define AXP717_IRQ2_EN			0x42
+@@ -125,6 +135,9 @@ enum axp20x_variants {
+ #define AXP717_IRQ2_STATE		0x4a
+ #define AXP717_IRQ3_STATE		0x4b
+ #define AXP717_IRQ4_STATE		0x4c
++#define AXP717_ICC_CHG_SET		0x62
++#define AXP717_ITERM_CHG_SET		0x63
++#define AXP717_CV_CHG_SET		0x64
+ #define AXP717_DCDC_OUTPUT_CONTROL	0x80
+ #define AXP717_DCDC1_CONTROL		0x83
+ #define AXP717_DCDC2_CONTROL		0x84
+@@ -145,6 +158,19 @@ enum axp20x_variants {
+ #define AXP717_CLDO3_CONTROL		0x9d
+ #define AXP717_CLDO4_CONTROL		0x9e
+ #define AXP717_CPUSLDO_CONTROL		0x9f
++#define AXP717_BATT_PERCENT_DATA	0xa4
++#define AXP717_ADC_CH_EN_CONTROL	0xc0
++#define AXP717_BATT_V_H			0xc4
++#define AXP717_BATT_V_L			0xc5
++#define AXP717_VBUS_V_H			0xc6
++#define AXP717_VBUS_V_L			0xc7
++#define AXP717_VSYS_V_H			0xc8
++#define AXP717_VSYS_V_L			0xc9
++#define AXP717_BATT_CHRG_I_H		0xca
++#define AXP717_BATT_CHRG_I_L		0xcb
++#define AXP717_ADC_DATA_SEL		0xcd
++#define AXP717_ADC_DATA_H		0xce
++#define AXP717_ADC_DATA_L		0xcf
+ 
+ #define AXP806_STARTUP_SRC		0x00
+ #define AXP806_CHIP_ID			0x03

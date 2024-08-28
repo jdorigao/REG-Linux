@@ -1,0 +1,162 @@
+From patchwork Wed Aug 21 21:54:48 2024
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Chris Morgan <macroalpha82@gmail.com>
+X-Patchwork-Id: 13772185
+Return-Path: 
+ <linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4ADB2C52D7C
+	for <linux-arm-kernel@archiver.kernel.org>;
+ Wed, 21 Aug 2024 22:03:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:List-Subscribe:List-Help
+	:List-Post:List-Archive:List-Unsubscribe:List-Id:Content-Transfer-Encoding:
+	MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+	Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
+	bh=RkkzIKfrsu8xLnQwZgjeVDvaKU/MUJN67PA3Rk4p0CM=; b=eGoC6DqaFxVcZxSuhGe7uCD5QL
+	tv6vUgp8cmsLNH8ASFe8L02RU6a4yjwbpMWrK0EE6jC8nonqDQ1GcCRQaZn/xg5keAnNZg/VaA/ah
+	JT2mpGtE5HpmgunQW4hzHEzoU0SycTBMPRd5Jh2X6h8nN49MOtWGodRtsSuzEGBvL2bL+oIiJQbSc
+	Cgows/qbTnmdPwH9ofsHdFnxpLRPTPFKzzNLkoZ4OSaF564RtcgrSrEXmCE7ufHndyn0aS4yb2gWY
+	4aAub0/fNc9NJZCTCBeFahBUXVbbTccLLfNIIIExCM5Dx/jV2LkW9BTXlFxUxS901uFEj7cS3MPxv
+	wnwZ6eWg==;
+Received: from localhost ([::1] helo=bombadil.infradead.org)
+	by bombadil.infradead.org with esmtp (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtQ9-0000000AV5F-1pGz;
+	Wed, 21 Aug 2024 22:03:13 +0000
+Received: from mail-oi1-x234.google.com ([2607:f8b0:4864:20::234])
+	by bombadil.infradead.org with esmtps (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtKh-0000000AU6R-2Uqq
+	for linux-arm-kernel@lists.infradead.org;
+	Wed, 21 Aug 2024 21:57:36 +0000
+Received: by mail-oi1-x234.google.com with SMTP id
+ 5614622812f47-3db16a98d16so88864b6e.0
+        for <linux-arm-kernel@lists.infradead.org>;
+ Wed, 21 Aug 2024 14:57:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724277454; x=1724882254;
+ darn=lists.infradead.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=RkkzIKfrsu8xLnQwZgjeVDvaKU/MUJN67PA3Rk4p0CM=;
+        b=MNKjS3zh6skTTtek9c4mNnDDDXjxAbp+lEk6Ixlk2pS4MByDJT5EzMp62zv3+lJGrw
+         7h7Div6k45/2yxzdhCBWwKIpXqJr18YDzCT81dyrf2ancEOcdtcuX/Jv/U8/6K+8p4Og
+         VQ4BefPHjRCrJIOnmWzBBp/8NYHqdSSIXmk0l7Fg9yo7qa658FihipnnzaOc3v8/i/B5
+         b0AOZeaz45yZhTlx4M4FAGIaBvu1I7MBQJBKcKBInUowpvrRj9NurxrmzOl5aF0DqA6c
+         aUzDeUJYxQxnBQodjH8YTvjEzJQCcJfkzc36MrR2qn9Jcw3EaqXZsAfV07nD3xZnwbfo
+         pWxw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724277454; x=1724882254;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=RkkzIKfrsu8xLnQwZgjeVDvaKU/MUJN67PA3Rk4p0CM=;
+        b=kM0WEv4nn38xJ08+Uj8SzVe+c1W+JfR01GgjLiHzQ4kuX/C5skngp/H6KhmET2w1kV
+         +0s0awSOkcP0A0L0GfmgpxVRnNgkZhV2GwdBF07lwx4SsWgzYfYUs9sBaGddqkTZ5fkC
+         sBk5MllDnN9J5Vsrh+Y+dA3ghU3HuVhTXxGWbJbaC9feUqSdJkTQBYvAEcmFrdolAx19
+         k1t2lL47GTaf/g1lskLzp6RBs/cliBMg4XEVFJ3iz22F86HJOdBE39efMBUNeA2eHnUR
+         P7GXPaNd0lj31/qfnJuPcWM3aMF2g/op9DynkG162tzwQOU2lZ/sa+gmOarPKwD4ReN0
+         62Pg==
+X-Forwarded-Encrypted: i=1;
+ AJvYcCW4wnS47mhonidAe6qGPIAzYFdPq7aYZ31d2kNWl2XfNlhdyB2FXRmgVZR6JrzVMsRw7w5ED9nNqv+pUxyWQRPz@lists.infradead.org
+X-Gm-Message-State: AOJu0YwGMJY2GNILgha2bFQgNyEL1BCpFsXSRRcLSJb7D8gZ+4qp6NUg
+	r74ANQsrMD4M+9nmZTEeMMmAMRC1naSwobM5Z8AffudsqxHd0XDW
+X-Google-Smtp-Source: 
+ AGHT+IGG5pB023gZP8ZguddlFNlR28q2cmj9bTwLc1Bj1tHSp3mMg1g9qpl/sTQ1MotPq+SJ7pl1cw==
+X-Received: by 2002:a05:6808:1796:b0:3da:aae9:7165 with SMTP id
+ 5614622812f47-3de194f96e3mr4164334b6e.14.1724277454392;
+        Wed, 21 Aug 2024 14:57:34 -0700 (PDT)
+Received: from localhost.localdomain
+ ([2600:1700:fb0:1bcf:81a9:2325:e0f7:7376])
+        by smtp.gmail.com with ESMTPSA id
+ 5614622812f47-3de225555b6sm47070b6e.17.2024.08.21.14.57.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Aug 2024 14:57:34 -0700 (PDT)
+From: Chris Morgan <macroalpha82@gmail.com>
+To: linux-sunxi@lists.linux.dev
+Cc: linux-pm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	quentin.schulz@free-electrons.com,
+	mripard@kernel.org,
+	tgamblin@baylibre.com,
+	aidanmacdonald.0x0@gmail.com,
+	u.kleine-koenig@pengutronix.de,
+	lee@kernel.org,
+	samuel@sholland.org,
+	jernej.skrabec@gmail.com,
+	sre@kernel.org,
+	wens@csie.org,
+	conor+dt@kernel.org,
+	krzk+dt@kernel.org,
+	robh@kernel.org,
+	lars@metafoo.de,
+	jic23@kernel.org,
+	jonathan.cameron@huawei.com,
+	Chris Morgan <macromorgan@hotmail.com>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH V4 07/15] dt-bindings: power: supply: axp20x-battery: Add
+ monitored-battery
+Date: Wed, 21 Aug 2024 16:54:48 -0500
+Message-Id: <20240821215456.962564-8-macroalpha82@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240821215456.962564-1-macroalpha82@gmail.com>
+References: <20240821215456.962564-1-macroalpha82@gmail.com>
+MIME-Version: 1.0
+X-CRM114-Version: 20100106-BlameMichelson ( TRE 0.8.0 (BSD) ) MR-646709E3 
+X-CRM114-CacheID: sfid-20240821_145735_641890_5C44B67C 
+X-CRM114-Status: GOOD (  10.17  )
+X-BeenThere: linux-arm-kernel@lists.infradead.org
+X-Mailman-Version: 2.1.34
+Precedence: list
+List-Id: <linux-arm-kernel.lists.infradead.org>
+List-Unsubscribe: 
+ <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: 
+ <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: 
+ linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+
+From: Chris Morgan <macromorgan@hotmail.com>
+
+Document the monitored-battery property, which the existing driver can
+use to set certain properties.
+
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+---
+ .../power/supply/x-powers,axp20x-battery-power-supply.yaml  | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/power/supply/x-powers,axp20x-battery-power-supply.yaml b/Documentation/devicetree/bindings/power/supply/x-powers,axp20x-battery-power-supply.yaml
+index e0b95ecbbebd..f196bf70b248 100644
+--- a/Documentation/devicetree/bindings/power/supply/x-powers,axp20x-battery-power-supply.yaml
++++ b/Documentation/devicetree/bindings/power/supply/x-powers,axp20x-battery-power-supply.yaml
+@@ -28,6 +28,12 @@ properties:
+           - const: x-powers,axp813-battery-power-supply
+       - const: x-powers,axp813-battery-power-supply
+ 
++  monitored-battery:
++    description:
++      Specifies the phandle of an optional simple-battery connected to
++      this gauge.
++    $ref: /schemas/types.yaml#/definitions/phandle
++
+ required:
+   - compatible
+ 

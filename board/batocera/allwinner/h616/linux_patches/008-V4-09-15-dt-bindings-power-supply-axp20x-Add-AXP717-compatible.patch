@@ -1,0 +1,179 @@
+From patchwork Wed Aug 21 21:54:50 2024
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Chris Morgan <macroalpha82@gmail.com>
+X-Patchwork-Id: 13772187
+Return-Path: 
+ <linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B4AB6C5320E
+	for <linux-arm-kernel@archiver.kernel.org>;
+ Wed, 21 Aug 2024 22:04:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:List-Subscribe:List-Help
+	:List-Post:List-Archive:List-Unsubscribe:List-Id:Content-Transfer-Encoding:
+	MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+	Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
+	bh=ys+sG5b9a6uhbl5zndW9/e6kK/Fuw6SOZtG6PQfHk44=; b=wJzXbiol8zyEbLfz5H8rxhSTry
+	YDv2fNH2ccopR/lj8+NF5oMPGFj0vH+ekW0G7VVqAkwG3w1ZKIcuQJDMkfu2CPa/BOIfVqV5fswxQ
+	grtnvk5L4A1svqm7vfPWk/P3SLHyuniSdxW1/+tHdmAsWcYuLdxwPcTAZ+NqLDikNN9gzlRTX9Soh
+	PYmX5WFbEY6R6JRq2wt8aZHQMH/fovXh+h2kapDIXsBvpPESmTRoJnU1Myr1OxAs3AzL0AUASuay1
+	nKf4u80FkiSPFNwwAPj/kXcLVyJRoOulFkBtS6+BLRDUcvOe2FG0wB5wkw4DEOSIlIqqB3rWWzs+5
+	iNfmdo3A==;
+Received: from localhost ([::1] helo=bombadil.infradead.org)
+	by bombadil.infradead.org with esmtp (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtRV-0000000AVGM-1Aje;
+	Wed, 21 Aug 2024 22:04:37 +0000
+Received: from mail-oi1-x229.google.com ([2607:f8b0:4864:20::229])
+	by bombadil.infradead.org with esmtps (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtKi-0000000AU7H-3PZS
+	for linux-arm-kernel@lists.infradead.org;
+	Wed, 21 Aug 2024 21:57:38 +0000
+Received: by mail-oi1-x229.google.com with SMTP id
+ 5614622812f47-3db145c8010so85816b6e.3
+        for <linux-arm-kernel@lists.infradead.org>;
+ Wed, 21 Aug 2024 14:57:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724277456; x=1724882256;
+ darn=lists.infradead.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ys+sG5b9a6uhbl5zndW9/e6kK/Fuw6SOZtG6PQfHk44=;
+        b=nghsrxMimocvBeihr1EnuQQMQXO+j47kqKHa+eMF4cGpI+GJPCBGouyhVXdvu02alw
+         BVbth0IAlEyBBJuCNUGWA9Ztlj0brnTcyhe+ZS3qdGH57N17hd3pByJz2shT2bwKysz3
+         v1ZTaGYWbsD0UXO6S0QGXfTr2FL1CQVeqj3Xql8LvEME97E/pIfbDKwnzZYYyKFYxCsV
+         XmQjFwv/BfrDijusvXYyFmgsEo66LMwZpjl2rrlGjdn3fIh9STFJXMHu2ntZWTRQkFwM
+         7OMIGxOKd5P7OqFf6xSTwnstGYYSPJUaiCJkfEc/x4t6w+HlARF88EjF0vkbGNJfByY2
+         iVkg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724277456; x=1724882256;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ys+sG5b9a6uhbl5zndW9/e6kK/Fuw6SOZtG6PQfHk44=;
+        b=JzCBY3OuC6BTN/fjooIrStA9Kc7n8pe2LLdrHoGO2woVzov1OiNlqeLHo2X3ZUxGK4
+         lsBjX5ZWGWKmeAx77/2CoWvnh2JYsnSCJQL1pesUsWQ3DQ/pQMnBvQONzRzjKzq/6NJm
+         QGbHrw6Um9opYBN0Y6Q/SaCGYcMvA0Ujt6/uA/mqEG50prAwrL8t9Lerw1rtdHXkJNA7
+         hCyTB9Ux2vKOkLHc3XEewEnr0IXOQQRQCz7Kf82WHxXCm1F+Hpl0Zw4qIaPNKkeFtEom
+         pNrgkTK74jl3Pv2mUfOnraL8TnbqS/ta19+Hj4osiQjnqBKwlSQ7ETieMbDs62GmUys8
+         z5vw==
+X-Forwarded-Encrypted: i=1;
+ AJvYcCXW0WrOA29P8Fx4jS60dUu/l1yrz/+afAIe3DqvstsqZTM/lwlICENgjvi8fpNW4qPkmHsH9HrPDtEBiBuYb8Kf@lists.infradead.org
+X-Gm-Message-State: AOJu0YwgQngETZLPdCeEoi9WU015ieHSCF1pi9SD3LbDBFcgJDYSVXOD
+	C6/dhUMyh8BcwZcfqKnUAlpF7Id+6Uhsgq9Z4v3AGfNOkAVRXXvV
+X-Google-Smtp-Source: 
+ AGHT+IGSNGiLpSDGYbeQsr9hfzMxprNvYc1rfBeR6FKiK1Zn8vEKIFHLbFvwtoPro63cqF4NO+LkPA==
+X-Received: by 2002:a05:6808:1211:b0:3d9:de82:f07b with SMTP id
+ 5614622812f47-3de1951b88emr5131812b6e.28.1724277456012;
+        Wed, 21 Aug 2024 14:57:36 -0700 (PDT)
+Received: from localhost.localdomain
+ ([2600:1700:fb0:1bcf:81a9:2325:e0f7:7376])
+        by smtp.gmail.com with ESMTPSA id
+ 5614622812f47-3de225555b6sm47070b6e.17.2024.08.21.14.57.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Aug 2024 14:57:35 -0700 (PDT)
+From: Chris Morgan <macroalpha82@gmail.com>
+To: linux-sunxi@lists.linux.dev
+Cc: linux-pm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	quentin.schulz@free-electrons.com,
+	mripard@kernel.org,
+	tgamblin@baylibre.com,
+	aidanmacdonald.0x0@gmail.com,
+	u.kleine-koenig@pengutronix.de,
+	lee@kernel.org,
+	samuel@sholland.org,
+	jernej.skrabec@gmail.com,
+	sre@kernel.org,
+	wens@csie.org,
+	conor+dt@kernel.org,
+	krzk+dt@kernel.org,
+	robh@kernel.org,
+	lars@metafoo.de,
+	jic23@kernel.org,
+	jonathan.cameron@huawei.com,
+	Chris Morgan <macromorgan@hotmail.com>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH V4 09/15] dt-bindings: power: supply: axp20x: Add AXP717
+ compatible
+Date: Wed, 21 Aug 2024 16:54:50 -0500
+Message-Id: <20240821215456.962564-10-macroalpha82@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240821215456.962564-1-macroalpha82@gmail.com>
+References: <20240821215456.962564-1-macroalpha82@gmail.com>
+MIME-Version: 1.0
+X-CRM114-Version: 20100106-BlameMichelson ( TRE 0.8.0 (BSD) ) MR-646709E3 
+X-CRM114-CacheID: sfid-20240821_145736_885626_1AE6987F 
+X-CRM114-Status: GOOD (  10.80  )
+X-BeenThere: linux-arm-kernel@lists.infradead.org
+X-Mailman-Version: 2.1.34
+Precedence: list
+List-Id: <linux-arm-kernel.lists.infradead.org>
+List-Unsubscribe: 
+ <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: 
+ <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: 
+ linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+
+From: Chris Morgan <macromorgan@hotmail.com>
+
+Add support for the AXP717. It has BC 1.2 detection like the AXP813
+and uses ADC channels like all other AXP devices, but otherwise is
+very different requiring new registers for most functions.
+
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+---
+ .../supply/x-powers,axp20x-usb-power-supply.yaml   | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/power/supply/x-powers,axp20x-usb-power-supply.yaml b/Documentation/devicetree/bindings/power/supply/x-powers,axp20x-usb-power-supply.yaml
+index ab24ebf2852f..2ec036405ae4 100644
+--- a/Documentation/devicetree/bindings/power/supply/x-powers,axp20x-usb-power-supply.yaml
++++ b/Documentation/devicetree/bindings/power/supply/x-powers,axp20x-usb-power-supply.yaml
+@@ -23,6 +23,7 @@ properties:
+           - x-powers,axp202-usb-power-supply
+           - x-powers,axp221-usb-power-supply
+           - x-powers,axp223-usb-power-supply
++          - x-powers,axp717-usb-power-supply
+           - x-powers,axp813-usb-power-supply
+       - items:
+           - const: x-powers,axp803-usb-power-supply
+@@ -75,6 +76,19 @@ allOf:
+         input-current-limit-microamp:
+           enum: [500000, 900000]
+ 
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - x-powers,axp717-usb-power-supply
++    then:
++      properties:
++        input-current-limit-microamp:
++          description: Maximum input current in increments of 50000 uA.
++          minimum: 100000
++          maximum: 3250000
++
+   - if:
+       properties:
+         compatible:

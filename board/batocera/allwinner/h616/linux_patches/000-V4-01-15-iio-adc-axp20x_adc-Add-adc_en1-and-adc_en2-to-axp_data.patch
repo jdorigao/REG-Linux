@@ -1,0 +1,232 @@
+From patchwork Wed Aug 21 21:54:42 2024
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Chris Morgan <macroalpha82@gmail.com>
+X-Patchwork-Id: 13772162
+Return-Path: 
+ <linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E0388C52D7C
+	for <linux-arm-kernel@archiver.kernel.org>;
+ Wed, 21 Aug 2024 21:59:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:List-Subscribe:List-Help
+	:List-Post:List-Archive:List-Unsubscribe:List-Id:Content-Transfer-Encoding:
+	MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+	Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
+	bh=WkTLpaLrmy3BxDBwaB1+2Zmk+X/0Igy34RCtn19SnOY=; b=AxDP6bU4J2vN5f5CsPBUz7Dldc
+	ltKe9QhE9RetH9vwqLKnT7F08fWykysYd+2mx4vX8Fx+pRldT6wJxWW3ELV/3YqaJgeH7enYEzWhE
+	qBmssovJroVrpzh72FcoPsUw/gG3+8w3lgousc16BEiV0MDP4dSYY4iGP4jPxo+5QllrRZG2CjlXQ
+	T34blzNbGjyL6MnIk3oUe8OkQMMO+/YHL3TqElbPextQaILAm3IVSYRC6XKmxFY35Im+Irrfifcl4
+	8C3T2RuRkuIfSEyjiuL5f4f1T6yLU+AVVi+gEEtBOY7nSfXY3ZfvtzX3cmobZw4M4V3DSDB5wG+nb
+	EzOmM97Q==;
+Received: from localhost ([::1] helo=bombadil.infradead.org)
+	by bombadil.infradead.org with esmtp (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtM3-0000000AUPh-3pz7;
+	Wed, 21 Aug 2024 21:59:00 +0000
+Received: from mail-oi1-x233.google.com ([2607:f8b0:4864:20::233])
+	by bombadil.infradead.org with esmtps (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtKc-0000000AU32-2w02
+	for linux-arm-kernel@lists.infradead.org;
+	Wed, 21 Aug 2024 21:57:33 +0000
+Received: by mail-oi1-x233.google.com with SMTP id
+ 5614622812f47-3db18c4927bso100139b6e.1
+        for <linux-arm-kernel@lists.infradead.org>;
+ Wed, 21 Aug 2024 14:57:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724277449; x=1724882249;
+ darn=lists.infradead.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WkTLpaLrmy3BxDBwaB1+2Zmk+X/0Igy34RCtn19SnOY=;
+        b=NX+4XVmh8oT4FKvKg4JEjEQBZDESWF4NYr83izZLjkwWxVXDcb2teO//4809pfwgCz
+         kWKGwM0N4tcsisDCCqGizyjGVVTbjc6KEgfDsbhEQU9LCXLrLDvoSglxBytN5efIFOhd
+         vgtbd2bSELnx/2ABG9+r6XvUYL6oDpQAjavz9R/Fo796sGKSuVB5AtQwoKoXUAvDyG9A
+         h0Ukb3b/LbuUNnK4cv0zeNKCpKRdqYoLHOdYdSTNA5q9Lq75ehaESqbOjPzF3FWB2jct
+         2+AWEsJoR/KN8pCUsN8RE33VH9EQZc84W1oL+q34kTNSaB4r6dkdd3JPu43OK/xU0ofh
+         Zylg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724277449; x=1724882249;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WkTLpaLrmy3BxDBwaB1+2Zmk+X/0Igy34RCtn19SnOY=;
+        b=JilWs+ZmqzmYQsP1wQqTZyyWeNuHOsni9fs7DBav+5OlOUvx4FJUpzLWr+tyXG8k+8
+         wG+gehcQ7fIldcPHw0OLwJqqC8bgc7IMf+4ncsJ3KoFccc/i2Ms3cepvgnbl7F0ZPkZ2
+         hMfNJAOC17psOvo7bKDGUCnx3bj0xTvMgnCbIGQ++F2P2BDPYc10KLpw7PqVlpmxft+B
+         iHLABHTC9H7uiCGuUKiSMrs+80M4Dlu76upWi486lw8uKgPyF2PJDh+rwUvIX4z4+Gac
+         nqbD4zEM4lulEWfEvrgE6VqJ7JkPpD9fu1C/Q4vlnJeuYJpYKvjWrtUXxsL7J0CgQBAE
+         JdwA==
+X-Forwarded-Encrypted: i=1;
+ AJvYcCXoaricGUHsWISYjitaOk3imUTU4EJHOy2aJEynFaioO/qTbFCZ8fa8ZdQZFy0N7MdaSHeSnkHbrTzYvE2TK18U@lists.infradead.org
+X-Gm-Message-State: AOJu0Yxs/CNXQKyivrckLUdx4+LxcXntepw5Fqtu2z6CoP7BxQvPL4Ow
+	1vRMCZlk/P+/lbTmMPugUauc1CWDW2kJuHDUr/zI4X3Bb++ZftdY
+X-Google-Smtp-Source: 
+ AGHT+IG0g+ItvbLGFC4CrC1tDA+EwYrPd6P5p9u4y4eTdOg8SYQpZesNcarolPBA3iTnoSWiVjSeXQ==
+X-Received: by 2002:a05:6808:3090:b0:3dd:4376:db2c with SMTP id
+ 5614622812f47-3de194e0b70mr5175137b6e.9.1724277449522;
+        Wed, 21 Aug 2024 14:57:29 -0700 (PDT)
+Received: from localhost.localdomain
+ ([2600:1700:fb0:1bcf:81a9:2325:e0f7:7376])
+        by smtp.gmail.com with ESMTPSA id
+ 5614622812f47-3de225555b6sm47070b6e.17.2024.08.21.14.57.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Aug 2024 14:57:29 -0700 (PDT)
+From: Chris Morgan <macroalpha82@gmail.com>
+To: linux-sunxi@lists.linux.dev
+Cc: linux-pm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	quentin.schulz@free-electrons.com,
+	mripard@kernel.org,
+	tgamblin@baylibre.com,
+	aidanmacdonald.0x0@gmail.com,
+	u.kleine-koenig@pengutronix.de,
+	lee@kernel.org,
+	samuel@sholland.org,
+	jernej.skrabec@gmail.com,
+	sre@kernel.org,
+	wens@csie.org,
+	conor+dt@kernel.org,
+	krzk+dt@kernel.org,
+	robh@kernel.org,
+	lars@metafoo.de,
+	jic23@kernel.org,
+	jonathan.cameron@huawei.com,
+	Chris Morgan <macromorgan@hotmail.com>,
+	Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH V4 01/15] iio: adc: axp20x_adc: Add adc_en1 and adc_en2 to
+ axp_data
+Date: Wed, 21 Aug 2024 16:54:42 -0500
+Message-Id: <20240821215456.962564-2-macroalpha82@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240821215456.962564-1-macroalpha82@gmail.com>
+References: <20240821215456.962564-1-macroalpha82@gmail.com>
+MIME-Version: 1.0
+X-CRM114-Version: 20100106-BlameMichelson ( TRE 0.8.0 (BSD) ) MR-646709E3 
+X-CRM114-CacheID: sfid-20240821_145730_774072_3AF79696 
+X-CRM114-Status: GOOD (  17.09  )
+X-BeenThere: linux-arm-kernel@lists.infradead.org
+X-Mailman-Version: 2.1.34
+Precedence: list
+List-Id: <linux-arm-kernel.lists.infradead.org>
+List-Unsubscribe: 
+ <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: 
+ <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: 
+ linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+
+From: Chris Morgan <macromorgan@hotmail.com>
+
+Add the register for adc_en1 and adc_en2 to the axp_data struct. This
+allows us to specify a different register to enable the adc channels
+for different devices such as the AXP717.
+
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+---
+ drivers/iio/adc/axp20x_adc.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/iio/adc/axp20x_adc.c b/drivers/iio/adc/axp20x_adc.c
+index b487e577befb..368ba6ee7a80 100644
+--- a/drivers/iio/adc/axp20x_adc.c
++++ b/drivers/iio/adc/axp20x_adc.c
+@@ -889,7 +889,9 @@ struct axp_data {
+ 	const struct iio_info		*iio_info;
+ 	int				num_channels;
+ 	struct iio_chan_spec const	*channels;
++	unsigned long			adc_en1;
+ 	unsigned long			adc_en1_mask;
++	unsigned long			adc_en2;
+ 	unsigned long			adc_en2_mask;
+ 	int				(*adc_rate)(struct axp20x_adc_iio *info,
+ 						    int rate);
+@@ -910,7 +912,9 @@ static const struct axp_data axp20x_data = {
+ 	.iio_info = &axp20x_adc_iio_info,
+ 	.num_channels = ARRAY_SIZE(axp20x_adc_channels),
+ 	.channels = axp20x_adc_channels,
++	.adc_en1 = AXP20X_ADC_EN1,
+ 	.adc_en1_mask = AXP20X_ADC_EN1_MASK,
++	.adc_en2 = AXP20X_ADC_EN2,
+ 	.adc_en2_mask = AXP20X_ADC_EN2_MASK,
+ 	.adc_rate = axp20x_adc_rate,
+ 	.maps = axp20x_maps,
+@@ -920,6 +924,7 @@ static const struct axp_data axp22x_data = {
+ 	.iio_info = &axp22x_adc_iio_info,
+ 	.num_channels = ARRAY_SIZE(axp22x_adc_channels),
+ 	.channels = axp22x_adc_channels,
++	.adc_en1 = AXP20X_ADC_EN1,
+ 	.adc_en1_mask = AXP22X_ADC_EN1_MASK,
+ 	.adc_rate = axp22x_adc_rate,
+ 	.maps = axp22x_maps,
+@@ -929,6 +934,7 @@ static const struct axp_data axp813_data = {
+ 	.iio_info = &axp813_adc_iio_info,
+ 	.num_channels = ARRAY_SIZE(axp813_adc_channels),
+ 	.channels = axp813_adc_channels,
++	.adc_en1 = AXP20X_ADC_EN1,
+ 	.adc_en1_mask = AXP22X_ADC_EN1_MASK,
+ 	.adc_rate = axp813_adc_rate,
+ 	.maps = axp22x_maps,
+@@ -988,14 +994,16 @@ static int axp20x_probe(struct platform_device *pdev)
+ 	indio_dev->channels = info->data->channels;
+ 
+ 	/* Enable the ADCs on IP */
+-	regmap_write(info->regmap, AXP20X_ADC_EN1, info->data->adc_en1_mask);
++	regmap_write(info->regmap, info->data->adc_en1,
++		     info->data->adc_en1_mask);
+ 
+ 	if (info->data->adc_en2_mask)
+-		regmap_set_bits(info->regmap, AXP20X_ADC_EN2,
++		regmap_set_bits(info->regmap, info->data->adc_en2,
+ 				info->data->adc_en2_mask);
+ 
+ 	/* Configure ADCs rate */
+-	info->data->adc_rate(info, 100);
++	if (info->data->adc_rate)
++		info->data->adc_rate(info, 100);
+ 
+ 	ret = iio_map_array_register(indio_dev, info->data->maps);
+ 	if (ret < 0) {
+@@ -1015,10 +1023,10 @@ static int axp20x_probe(struct platform_device *pdev)
+ 	iio_map_array_unregister(indio_dev);
+ 
+ fail_map:
+-	regmap_write(info->regmap, AXP20X_ADC_EN1, 0);
++	regmap_write(info->regmap, info->data->adc_en1, 0);
+ 
+ 	if (info->data->adc_en2_mask)
+-		regmap_write(info->regmap, AXP20X_ADC_EN2, 0);
++		regmap_write(info->regmap, info->data->adc_en2, 0);
+ 
+ 	return ret;
+ }
+@@ -1031,10 +1039,10 @@ static void axp20x_remove(struct platform_device *pdev)
+ 	iio_device_unregister(indio_dev);
+ 	iio_map_array_unregister(indio_dev);
+ 
+-	regmap_write(info->regmap, AXP20X_ADC_EN1, 0);
++	regmap_write(info->regmap, info->data->adc_en1, 0);
+ 
+ 	if (info->data->adc_en2_mask)
+-		regmap_write(info->regmap, AXP20X_ADC_EN2, 0);
++		regmap_write(info->regmap, info->data->adc_en2, 0);
+ }
+ 
+ static struct platform_driver axp20x_adc_driver = {

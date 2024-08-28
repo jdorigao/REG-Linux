@@ -1,0 +1,313 @@
+From patchwork Wed Aug 21 21:54:45 2024
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Chris Morgan <macroalpha82@gmail.com>
+X-Patchwork-Id: 13772183
+Return-Path: 
+ <linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 064F8C52D6F
+	for <linux-arm-kernel@archiver.kernel.org>;
+ Wed, 21 Aug 2024 22:01:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:List-Subscribe:List-Help
+	:List-Post:List-Archive:List-Unsubscribe:List-Id:Content-Transfer-Encoding:
+	MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+	Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
+	bh=I0UhxZ2XxQFgvUjgiU5dDgFB2D6T8k8pYUXnFuEDKNs=; b=uN67GzgjxN2SZAMm41lFQ6h+6/
+	GlEo6QUOoMGKzc8XzPQgvwSKoJ+8dxY6Vxva2ZmaCtfy1Iz3VJvjc3xKFywoOT21u9WZjk8qS2N7d
+	Li1JycsomsN+Oogk/TzU+N0thJh6b1sv8Yvn7Naquyem7K1s/ndl6C0siRY1mpb1Eb0S30g42KamO
+	UVX9tpK44S1dVKGKnYowS8UZZtdCZTmfhowNZUDdzhUUDVgN+DVK8sHaxHb99dIDR30ohNl2vB7g/
+	A1P9x2LtBlPJ08Z2UbLf83eB6Z2SCcekfp+7KpwE0OdUrCgPD7l15ISJSoaUxyWB9+UIxLmsog+NT
+	E/7YPBaw==;
+Received: from localhost ([::1] helo=bombadil.infradead.org)
+	by bombadil.infradead.org with esmtp (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtOm-0000000AUrq-42cR;
+	Wed, 21 Aug 2024 22:01:48 +0000
+Received: from mail-oi1-x22a.google.com ([2607:f8b0:4864:20::22a])
+	by bombadil.infradead.org with esmtps (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtKf-0000000AU50-1i4p
+	for linux-arm-kernel@lists.infradead.org;
+	Wed, 21 Aug 2024 21:57:35 +0000
+Received: by mail-oi1-x22a.google.com with SMTP id
+ 5614622812f47-3db1e4219f8so73116b6e.3
+        for <linux-arm-kernel@lists.infradead.org>;
+ Wed, 21 Aug 2024 14:57:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724277452; x=1724882252;
+ darn=lists.infradead.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=I0UhxZ2XxQFgvUjgiU5dDgFB2D6T8k8pYUXnFuEDKNs=;
+        b=cSA/1wTNM2xGNM++On2J2OX8JFrkGB0a7hiS3NzCr6pOMQDoDsNn93rCr5rdkhkZHX
+         meltFJNjX4v4zKdiJQiWM91ZxZqY3FiZVobP4z0DBoyIzqXxhn3I2T4UL5m2Kh3Xmj7Z
+         ys4al/iMgKXL1C3HQNDYPvIC/yPLOj1c+52Kj4VC9lUnT3GuCX4o41CDf34Tf5kk6joI
+         R0vFMEfTa2hoEjglt9Mr1kSXwsZpmo0L0yUfuRSBq37k83l7DVuLRjd9S1g/5lmfUxOP
+         bFn3VlaI3La04sxfEBDxqXBwl69sgnN8O7kbsjnSnp0K3rU6XcWSI3XkmIXEsyADStB3
+         +gEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724277452; x=1724882252;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=I0UhxZ2XxQFgvUjgiU5dDgFB2D6T8k8pYUXnFuEDKNs=;
+        b=QRydWBeE7l/0IEPvjPWjA/7Vcp4YdPERBmI8n747U5bGN0vO1JJJTxg2BerZ/ACQbf
+         E9KS6SKYTOZd/R7Z1zpEHFYIkdfN+8SvS79+GdBR3V5AjdPkbfV3Vj2DUrm4OwAxi9uD
+         uovBOE5wEKwAc419B9IJsFkGZU6pX2yTr2aXe1Mb+FnwY9w7BYZTRLHtbOwUA7cE9Z6r
+         QXRC1AEFrVPeua3qKeVsn43Uz2VB5sUr99TER1T6eSelQdq4DCPsx4t1HG4wdpsNcv/R
+         dFsKwoFey7+h8XOnIW/i4RCeEFDbfZpRi8yzWjiHyQzzxenu35OzpPMmPp2IzSXWVzny
+         Yn1A==
+X-Forwarded-Encrypted: i=1;
+ AJvYcCWaI3mF/cZ5ktOqjjYEYuAi6Qz/3lDFJXM/yq+Ls97lp30qBrcQCkHFZQLzwUHLx2Vgv+OTG5b5gYn/KqXSHhhd@lists.infradead.org
+X-Gm-Message-State: AOJu0YxF+LiGL+zl8/ww29gvrLNVNfi4IUoaVu/1lWo3eGCFdQoKVrxZ
+	zDKRHDO7BvaHsS5G4XKeWRxOkINZ4K/j6pNJ8y+mbi2/zM9OY8HM
+X-Google-Smtp-Source: 
+ AGHT+IG0XI2TE/eI97M843RE/qlc7osFS8BEftni9pYq41Isvj2l2mBUFv5vVdUHIaSBnu9JP0w/Sw==
+X-Received: by 2002:a05:6808:1142:b0:3db:1661:4d64 with SMTP id
+ 5614622812f47-3de194f34a2mr4379695b6e.13.1724277452201;
+        Wed, 21 Aug 2024 14:57:32 -0700 (PDT)
+Received: from localhost.localdomain
+ ([2600:1700:fb0:1bcf:81a9:2325:e0f7:7376])
+        by smtp.gmail.com with ESMTPSA id
+ 5614622812f47-3de225555b6sm47070b6e.17.2024.08.21.14.57.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Aug 2024 14:57:31 -0700 (PDT)
+From: Chris Morgan <macroalpha82@gmail.com>
+To: linux-sunxi@lists.linux.dev
+Cc: linux-pm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	quentin.schulz@free-electrons.com,
+	mripard@kernel.org,
+	tgamblin@baylibre.com,
+	aidanmacdonald.0x0@gmail.com,
+	u.kleine-koenig@pengutronix.de,
+	lee@kernel.org,
+	samuel@sholland.org,
+	jernej.skrabec@gmail.com,
+	sre@kernel.org,
+	wens@csie.org,
+	conor+dt@kernel.org,
+	krzk+dt@kernel.org,
+	robh@kernel.org,
+	lars@metafoo.de,
+	jic23@kernel.org,
+	jonathan.cameron@huawei.com,
+	Chris Morgan <macromorgan@hotmail.com>
+Subject: [PATCH V4 04/15] power: supply: axp20x_usb_power: Make VBUS and IIO
+ config per device
+Date: Wed, 21 Aug 2024 16:54:45 -0500
+Message-Id: <20240821215456.962564-5-macroalpha82@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240821215456.962564-1-macroalpha82@gmail.com>
+References: <20240821215456.962564-1-macroalpha82@gmail.com>
+MIME-Version: 1.0
+X-CRM114-Version: 20100106-BlameMichelson ( TRE 0.8.0 (BSD) ) MR-646709E3 
+X-CRM114-CacheID: sfid-20240821_145733_478653_875FBE02 
+X-CRM114-Status: GOOD (  18.88  )
+X-BeenThere: linux-arm-kernel@lists.infradead.org
+X-Mailman-Version: 2.1.34
+Precedence: list
+List-Id: <linux-arm-kernel.lists.infradead.org>
+List-Unsubscribe: 
+ <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: 
+ <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: 
+ linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+
+From: Chris Morgan <macromorgan@hotmail.com>
+
+Make reading of the vbus value and configuring of the iio channels
+device specific, to allow additional devices (such as the AXP717) to
+be supported by this driver.
+
+Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+---
+ drivers/power/supply/axp20x_usb_power.c | 87 +++++++++++++++----------
+ 1 file changed, 54 insertions(+), 33 deletions(-)
+
+diff --git a/drivers/power/supply/axp20x_usb_power.c b/drivers/power/supply/axp20x_usb_power.c
+index dae7e5cfc54e..cd9e92f2ce71 100644
+--- a/drivers/power/supply/axp20x_usb_power.c
++++ b/drivers/power/supply/axp20x_usb_power.c
+@@ -45,6 +45,8 @@
+  */
+ #define DEBOUNCE_TIME			msecs_to_jiffies(50)
+ 
++struct axp20x_usb_power;
++
+ struct axp_data {
+ 	const struct power_supply_desc	*power_desc;
+ 	const char * const		*irq_names;
+@@ -58,6 +60,10 @@ struct axp_data {
+ 	struct reg_field		usb_bc_det_fld;
+ 	struct reg_field		vbus_disable_bit;
+ 	bool				vbus_needs_polling: 1;
++	void (*axp20x_read_vbus)(struct work_struct *work);
++	int (*axp20x_cfg_iio_chan)(struct platform_device *pdev,
++				   struct axp20x_usb_power *power);
++	int (*axp20x_cfg_adc_reg)(struct axp20x_usb_power *power);
+ };
+ 
+ struct axp20x_usb_power {
+@@ -385,6 +391,36 @@ static int axp20x_usb_power_prop_writeable(struct power_supply *psy,
+ 	       psp == POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT;
+ }
+ 
++static int axp20x_configure_iio_channels(struct platform_device *pdev,
++					 struct axp20x_usb_power *power)
++{
++	power->vbus_v = devm_iio_channel_get(&pdev->dev, "vbus_v");
++	if (IS_ERR(power->vbus_v)) {
++		if (PTR_ERR(power->vbus_v) == -ENODEV)
++			return -EPROBE_DEFER;
++		return PTR_ERR(power->vbus_v);
++	}
++
++	power->vbus_i = devm_iio_channel_get(&pdev->dev, "vbus_i");
++	if (IS_ERR(power->vbus_i)) {
++		if (PTR_ERR(power->vbus_i) == -ENODEV)
++			return -EPROBE_DEFER;
++		return PTR_ERR(power->vbus_i);
++	}
++
++	return 0;
++}
++
++static int axp20x_configure_adc_registers(struct axp20x_usb_power *power)
++{
++	/* Enable vbus voltage and current measurement */
++	return regmap_update_bits(power->regmap, AXP20X_ADC_EN1,
++				  AXP20X_ADC_EN1_VBUS_CURR |
++				  AXP20X_ADC_EN1_VBUS_VOLT,
++				  AXP20X_ADC_EN1_VBUS_CURR |
++				  AXP20X_ADC_EN1_VBUS_VOLT);
++}
++
+ static enum power_supply_property axp20x_usb_power_properties[] = {
+ 	POWER_SUPPLY_PROP_HEALTH,
+ 	POWER_SUPPLY_PROP_PRESENT,
+@@ -505,6 +541,9 @@ static const struct axp_data axp192_data = {
+ 	.curr_lim_fld   = REG_FIELD(AXP20X_VBUS_IPSOUT_MGMT, 0, 1),
+ 	.vbus_valid_bit = REG_FIELD(AXP192_USB_OTG_STATUS, 2, 2),
+ 	.vbus_mon_bit   = REG_FIELD(AXP20X_VBUS_MON, 3, 3),
++	.axp20x_read_vbus = &axp20x_usb_power_poll_vbus,
++	.axp20x_cfg_iio_chan = axp20x_configure_iio_channels,
++	.axp20x_cfg_adc_reg = axp20x_configure_adc_registers,
+ };
+ 
+ static const struct axp_data axp202_data = {
+@@ -516,6 +555,9 @@ static const struct axp_data axp202_data = {
+ 	.curr_lim_fld   = REG_FIELD(AXP20X_VBUS_IPSOUT_MGMT, 0, 1),
+ 	.vbus_valid_bit = REG_FIELD(AXP20X_USB_OTG_STATUS, 2, 2),
+ 	.vbus_mon_bit   = REG_FIELD(AXP20X_VBUS_MON, 3, 3),
++	.axp20x_read_vbus = &axp20x_usb_power_poll_vbus,
++	.axp20x_cfg_iio_chan = axp20x_configure_iio_channels,
++	.axp20x_cfg_adc_reg = axp20x_configure_adc_registers,
+ };
+ 
+ static const struct axp_data axp221_data = {
+@@ -526,6 +568,9 @@ static const struct axp_data axp221_data = {
+ 	.curr_lim_table_size = ARRAY_SIZE(axp221_usb_curr_lim_table),
+ 	.curr_lim_fld   = REG_FIELD(AXP20X_VBUS_IPSOUT_MGMT, 0, 1),
+ 	.vbus_needs_polling = true,
++	.axp20x_read_vbus = &axp20x_usb_power_poll_vbus,
++	.axp20x_cfg_iio_chan = axp20x_configure_iio_channels,
++	.axp20x_cfg_adc_reg = axp20x_configure_adc_registers,
+ };
+ 
+ static const struct axp_data axp223_data = {
+@@ -536,6 +581,9 @@ static const struct axp_data axp223_data = {
+ 	.curr_lim_table_size = ARRAY_SIZE(axp20x_usb_curr_lim_table),
+ 	.curr_lim_fld   = REG_FIELD(AXP20X_VBUS_IPSOUT_MGMT, 0, 1),
+ 	.vbus_needs_polling = true,
++	.axp20x_read_vbus = &axp20x_usb_power_poll_vbus,
++	.axp20x_cfg_iio_chan = axp20x_configure_iio_channels,
++	.axp20x_cfg_adc_reg = axp20x_configure_adc_registers,
+ };
+ 
+ static const struct axp_data axp813_data = {
+@@ -549,6 +597,9 @@ static const struct axp_data axp813_data = {
+ 	.usb_bc_det_fld = REG_FIELD(AXP288_BC_DET_STAT, 5, 7),
+ 	.vbus_disable_bit = REG_FIELD(AXP20X_VBUS_IPSOUT_MGMT, 7, 7),
+ 	.vbus_needs_polling = true,
++	.axp20x_read_vbus = &axp20x_usb_power_poll_vbus,
++	.axp20x_cfg_iio_chan = axp20x_configure_iio_channels,
++	.axp20x_cfg_adc_reg = axp20x_configure_adc_registers,
+ };
+ 
+ #ifdef CONFIG_PM_SLEEP
+@@ -590,36 +641,6 @@ static int axp20x_usb_power_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(axp20x_usb_power_pm_ops, axp20x_usb_power_suspend,
+ 						  axp20x_usb_power_resume);
+ 
+-static int configure_iio_channels(struct platform_device *pdev,
+-				  struct axp20x_usb_power *power)
+-{
+-	power->vbus_v = devm_iio_channel_get(&pdev->dev, "vbus_v");
+-	if (IS_ERR(power->vbus_v)) {
+-		if (PTR_ERR(power->vbus_v) == -ENODEV)
+-			return -EPROBE_DEFER;
+-		return PTR_ERR(power->vbus_v);
+-	}
+-
+-	power->vbus_i = devm_iio_channel_get(&pdev->dev, "vbus_i");
+-	if (IS_ERR(power->vbus_i)) {
+-		if (PTR_ERR(power->vbus_i) == -ENODEV)
+-			return -EPROBE_DEFER;
+-		return PTR_ERR(power->vbus_i);
+-	}
+-
+-	return 0;
+-}
+-
+-static int configure_adc_registers(struct axp20x_usb_power *power)
+-{
+-	/* Enable vbus voltage and current measurement */
+-	return regmap_update_bits(power->regmap, AXP20X_ADC_EN1,
+-				  AXP20X_ADC_EN1_VBUS_CURR |
+-				  AXP20X_ADC_EN1_VBUS_VOLT,
+-				  AXP20X_ADC_EN1_VBUS_CURR |
+-				  AXP20X_ADC_EN1_VBUS_VOLT);
+-}
+-
+ static int axp20x_regmap_field_alloc_optional(struct device *dev,
+ 					      struct regmap *regmap,
+ 					      struct reg_field fdesc,
+@@ -707,7 +728,7 @@ static int axp20x_usb_power_probe(struct platform_device *pdev)
+ 		return ret;
+ 
+ 	ret = devm_delayed_work_autocancel(&pdev->dev, &power->vbus_detect,
+-					   axp20x_usb_power_poll_vbus);
++					   axp_data->axp20x_read_vbus);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -718,9 +739,9 @@ static int axp20x_usb_power_probe(struct platform_device *pdev)
+ 			return ret;
+ 
+ 		if (IS_ENABLED(CONFIG_AXP20X_ADC))
+-			ret = configure_iio_channels(pdev, power);
++			ret = axp_data->axp20x_cfg_iio_chan(pdev, power);
+ 		else
+-			ret = configure_adc_registers(power);
++			ret = axp_data->axp20x_cfg_adc_reg(power);
+ 
+ 		if (ret)
+ 			return ret;

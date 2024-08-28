@@ -1,0 +1,175 @@
+From patchwork Wed Aug 21 21:54:49 2024
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Chris Morgan <macroalpha82@gmail.com>
+X-Patchwork-Id: 13772186
+Return-Path: 
+ <linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3119EC52D7C
+	for <linux-arm-kernel@archiver.kernel.org>;
+ Wed, 21 Aug 2024 22:04:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:List-Subscribe:List-Help
+	:List-Post:List-Archive:List-Unsubscribe:List-Id:Content-Transfer-Encoding:
+	MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+	Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
+	bh=eGT2rYhH6YuMr14pdSYvfteEm0BRhaU6zPY4wR7HVp4=; b=Zq4KBLKUBom8t+dMNtEFPW3XC6
+	jZjEPgIo3mnLNgm5ZCkR960GAkuf4r+c9HpajgZLtxlQ05qZq7O2MlDMZXkrNp3aZph3CLgxHvh59
+	gEdMC8S6H16giEHtHanJ+spxjk/d2q3vP0YCFRqZiL9gX3tCeHhGvKlf4PCP6YJRFDQYcWx/gIjKI
+	I5aEw/DX/OXy44yABgkIGmd+XzUSk+PQrj2bQ2LhhP5q/edTUZmA+R2cAAvqrdWIWfS38LFfz/oXG
+	Ze2jPCuUqAtLyhkuwXK6Wlv6lAeSIZ70yhJ15kXGQLo8MVBlRHyQ4ZLULAIa2rW5QwZleTarJl/+B
+	olv7manw==;
+Received: from localhost ([::1] helo=bombadil.infradead.org)
+	by bombadil.infradead.org with esmtp (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtQp-0000000AVAp-2XaO;
+	Wed, 21 Aug 2024 22:03:55 +0000
+Received: from mail-oi1-x22a.google.com ([2607:f8b0:4864:20::22a])
+	by bombadil.infradead.org with esmtps (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sgtKi-0000000AU6u-09Px
+	for linux-arm-kernel@lists.infradead.org;
+	Wed, 21 Aug 2024 21:57:37 +0000
+Received: by mail-oi1-x22a.google.com with SMTP id
+ 5614622812f47-3dd16257b87so63029b6e.2
+        for <linux-arm-kernel@lists.infradead.org>;
+ Wed, 21 Aug 2024 14:57:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724277455; x=1724882255;
+ darn=lists.infradead.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=eGT2rYhH6YuMr14pdSYvfteEm0BRhaU6zPY4wR7HVp4=;
+        b=RuuGv1G286dGE3uLVdVZa76FfTg2rzENtL+/trCjWcHASY1lRFWtpeZsi11wQRtWww
+         Gddtnn8J1ivE0YLGUjaGkVjG/qjh3VMNx4SdMUpB+fJHfNV13dXi1DvEmsk8PLGWxRaC
+         fty8IZdgBLMrz/uhwdZQBEXj+RAU9M0t/zRtn0/fxgPx814UjpJhuuc5H6iTvNG+rSum
+         o5RU+4kqc9XBtysRIhwA838P8AzDHUz71dZfjlNhvLMnbuPDIGyfpdAn0nrMThkA7Gp0
+         tHHheoYvGlN1/Vs9AWIsEvxiJG3p36uBga/tCEuvMLtIIrt9OaxHIG/pU2lZp05A1Y0n
+         +n1w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724277455; x=1724882255;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=eGT2rYhH6YuMr14pdSYvfteEm0BRhaU6zPY4wR7HVp4=;
+        b=R2LO232Qd5SoXcOdjDlizsdSzjvAbDPdbpZ97Q02TmQd8AstbE5KcdqVeohpmjZ5sr
+         wg62U40mS3Dy4ZupB2gaLZ0F0ewqlPaU1z4d7ZZmmnz7Bcj4K/T1H84RHo4D/7TG5U9r
+         kcXdgtMfCR5O70ym4sYOo4rCynymS9ybOfC9LQurOHbd2tjzCfhd/5G25ZbeTtmUGQ36
+         w1H+QHCESHoiLi8ZoBCTq1lwRGkeCGMANDMZZxB5G2bhVNrSeHjDsKY7VY70WzEJrarP
+         DRBXQuYkT3f1d+5gm0RHx3ene5Sboy6eLyzVvQwy4zDlWguwCGavshivyex1NDUEArvX
+         kQIQ==
+X-Forwarded-Encrypted: i=1;
+ AJvYcCVkW4yDaZHczfNsxyFkH7lTBHCXLH5Pb00fW7WOHb3y1+vmO6H6+Ojo0Nonr1h01scJSuz+Jm4xR6CE3pjcdBkp@lists.infradead.org
+X-Gm-Message-State: AOJu0YwvLQ939rCVhht3rfO1lsaX8K3V6iGpsRiDQEA7GgWahiRzK39i
+	I6f0OATFucAyio8As0gXHAPge+2XPorTazP1MeLhoOnTI0/CxElQ
+X-Google-Smtp-Source: 
+ AGHT+IEmT0SJ8vvDWIKk0B/Tu72b9Who0S3hIvcO8+XPXOzOeiFwLu8KNdeN2Ow74HXfM0m1vgZkQQ==
+X-Received: by 2002:a05:6808:1203:b0:3d9:27fc:158f with SMTP id
+ 5614622812f47-3de1951eed3mr4146574b6e.29.1724277455261;
+        Wed, 21 Aug 2024 14:57:35 -0700 (PDT)
+Received: from localhost.localdomain
+ ([2600:1700:fb0:1bcf:81a9:2325:e0f7:7376])
+        by smtp.gmail.com with ESMTPSA id
+ 5614622812f47-3de225555b6sm47070b6e.17.2024.08.21.14.57.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Aug 2024 14:57:34 -0700 (PDT)
+From: Chris Morgan <macroalpha82@gmail.com>
+To: linux-sunxi@lists.linux.dev
+Cc: linux-pm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	quentin.schulz@free-electrons.com,
+	mripard@kernel.org,
+	tgamblin@baylibre.com,
+	aidanmacdonald.0x0@gmail.com,
+	u.kleine-koenig@pengutronix.de,
+	lee@kernel.org,
+	samuel@sholland.org,
+	jernej.skrabec@gmail.com,
+	sre@kernel.org,
+	wens@csie.org,
+	conor+dt@kernel.org,
+	krzk+dt@kernel.org,
+	robh@kernel.org,
+	lars@metafoo.de,
+	jic23@kernel.org,
+	jonathan.cameron@huawei.com,
+	Chris Morgan <macromorgan@hotmail.com>,
+	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH V4 08/15] dt-bindings: iio: adc: Add AXP717 compatible
+Date: Wed, 21 Aug 2024 16:54:49 -0500
+Message-Id: <20240821215456.962564-9-macroalpha82@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240821215456.962564-1-macroalpha82@gmail.com>
+References: <20240821215456.962564-1-macroalpha82@gmail.com>
+MIME-Version: 1.0
+X-CRM114-Version: 20100106-BlameMichelson ( TRE 0.8.0 (BSD) ) MR-646709E3 
+X-CRM114-CacheID: sfid-20240821_145736_083824_91389054 
+X-CRM114-Status: GOOD (  10.98  )
+X-BeenThere: linux-arm-kernel@lists.infradead.org
+X-Mailman-Version: 2.1.34
+Precedence: list
+List-Id: <linux-arm-kernel.lists.infradead.org>
+List-Unsubscribe: 
+ <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: 
+ <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: 
+ linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+
+From: Chris Morgan <macromorgan@hotmail.com>
+
+Add compatible binding for the axp717.
+
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+---
+ .../bindings/iio/adc/x-powers,axp209-adc.yaml        | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/iio/adc/x-powers,axp209-adc.yaml b/Documentation/devicetree/bindings/iio/adc/x-powers,axp209-adc.yaml
+index d40689f233f2..1caa896fce82 100644
+--- a/Documentation/devicetree/bindings/iio/adc/x-powers,axp209-adc.yaml
++++ b/Documentation/devicetree/bindings/iio/adc/x-powers,axp209-adc.yaml
+@@ -37,6 +37,17 @@ description: |
+    3 | batt_dischrg_i
+    4 | ts_v
+ 
++  AXP717
++  ------
++   0 | batt_v
++   1 | ts_v
++   2 | vbus_v
++   3 | vsys_v
++   4 | pmic_temp
++   5 | batt_chrg_i
++   6 | vmid_v
++   7 | bkup_batt_v
++
+   AXP813
+   ------
+    0 | pmic_temp
+@@ -52,6 +63,7 @@ properties:
+     oneOf:
+       - const: x-powers,axp209-adc
+       - const: x-powers,axp221-adc
++      - const: x-powers,axp717-adc
+       - const: x-powers,axp813-adc
+ 
+       - items:
