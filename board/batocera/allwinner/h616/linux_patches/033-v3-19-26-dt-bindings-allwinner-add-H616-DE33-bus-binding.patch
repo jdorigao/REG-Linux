@@ -1,0 +1,183 @@
+From patchwork Sat Aug 17 22:46:06 2024
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Ryan Walklin <ryan@testtoast.com>
+X-Patchwork-Id: 13767317
+Return-Path: 
+ <linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 564C9C531DC
+	for <linux-arm-kernel@archiver.kernel.org>;
+ Sat, 17 Aug 2024 23:18:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:List-Subscribe:List-Help
+	:List-Post:List-Archive:List-Unsubscribe:List-Id:Content-Transfer-Encoding:
+	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:
+	Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
+	bh=ArgqruXeyttOR0gNKLEFp7kUu4hS3MvwuI1H2d6rlAA=; b=1F4Wp4YgsZcSe/dOiEEIunLDl+
+	WDpX6Mr2OxizcNW6NJ7BCE+RctAYgTwfRN2fj8n1cWmsj7/oBgXxN08mY1/yLw0ZSzimoljTwuS2d
+	itdGrqmUjug+YS4JvgMh6B+tB5YsliHKulgjoPwaapU5RGRUvWnpIV87C3JEc3bhsJ48nKVPYhaar
+	eFkOCDqeeTdFIU2nLaUT/ruwAkPeYEFNPYHaV8NkAujN+DOQzzhyLI5JwEh3Ib1Pz/OKanOLwmJl8
+	eomu+7FDOx8i+ElSGuHCaFhP9AeFcl85vgE7Vzy3MH/6hbwADh4igSBuWW24Yku8B5usG9qBtZp9f
+	r3TDTymw==;
+Received: from localhost ([::1] helo=bombadil.infradead.org)
+	by bombadil.infradead.org with esmtp (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sfSgp-0000000Fs1b-2pUY;
+	Sat, 17 Aug 2024 23:18:31 +0000
+Received: from fout6-smtp.messagingengine.com ([103.168.172.149])
+	by bombadil.infradead.org with esmtps (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sfSWc-0000000FqNL-1g7f
+	for linux-arm-kernel@lists.infradead.org;
+	Sat, 17 Aug 2024 23:07:59 +0000
+Received: from phl-compute-08.internal (phl-compute-08.nyi.internal
+ [10.202.2.48])
+	by mailfout.nyi.internal (Postfix) with ESMTP id 998291388095;
+	Sat, 17 Aug 2024 19:07:57 -0400 (EDT)
+Received: from phl-mailfrontend-01 ([10.202.2.162])
+  by phl-compute-08.internal (MEProxy); Sat, 17 Aug 2024 19:07:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=testtoast.com;
+	 h=cc:cc:content-transfer-encoding:content-type:date:date:from
+	:from:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to; s=fm3; t=1723936077; x=
+	1724022477; bh=ArgqruXeyttOR0gNKLEFp7kUu4hS3MvwuI1H2d6rlAA=; b=j
+	/Fq4pAwSdQtK4IudTu97Rhr1f73xHWpmWquhWUc2FG4ziyOiYQrRrCg9KRSwFswF
+	Ey1dd7khbwaRu+vEsn3jEApfqOf+aB565PdqyNnHcLx6H7POdyxMt/vESkh3urb2
+	WObPS8DEzWyoSLWvNHV9V8LDRWrfqsXVaFBCy0VRRMykbcT3o2PafRC4cJ/cK6TE
+	txWiy96LvW1k6NqTNniJnbfN9zA6hQ+IWl/oc9iFx7jh9ByGiMSYL0m2a9GRtUK/
+	20wSkyy9avUTWIqoSzOpiiTOH2Gq5BmG14zcsk6uJetouq6/hqyHa36g+DUC/7I7
+	IYG8ZBaHDzvLZc0NL8PVA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:date:date:feedback-id:feedback-id:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1723936077; x=
+	1724022477; bh=ArgqruXeyttOR0gNKLEFp7kUu4hS3MvwuI1H2d6rlAA=; b=a
+	/oB83HmOGU9mDY+f46yJ9/1aeHyTYvT9V1vf/8jrkYec30FU5ZpYUWlYMS8jUmqY
+	+qWtLlI3duweMPAUsYdAX3z5ySPOhoQHqPgyUeV1++zVF56K1TNn75RSrk6F2+kR
+	X7GWacl/4j9XHyb+fuhaiSPXK/s5DC5H9h6rzrQdru9smUXWQq3tJN2Xa+8CJdad
+	YdggrPNdfQQfLE+pan4jao9iRgpLN8BNe1g+04+sKSzeYm6fMophKvmIiVRo0Cd1
+	ZihlzTy4TsqS7dS3N5dcP2o2g2/7sUUiCNK40fHVZ0U+ayj4hdmbwlg28I94SXyj
+	g5MZKvv0ZRxPaP0aFHtZw==
+X-ME-Sender: <xms:TS3BZu7X1BB7RFLRzi8CQdE34HZUsRqP8yGcQyc9SpLtfuQdGJdcjg>
+    <xme:TS3BZn7g_R9Y1yJciRZ4YdBSitVPf2dOg3Tm2r_uBtIVn-bY5NGdRs6yECmhkvq6b
+    GkF76JsdxbBsd_7cg>
+X-ME-Received: 
+ <xmr:TS3BZtchUubeipQopPlZBO-2HHX8JJs3uNfIZyEYvWKeHuyMvKfxKlBeaFt6ZI6oeypILMzKbYK6JMSKhxhHABWz6MWze1I9ZZbmGPDcpOKw92xq>
+X-ME-Proxy-Cause: 
+ gggruggvucftvghtrhhoucdtuddrgeeftddrudduuddgudekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggvpdfu
+    rfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnh
+    htshculddquddttddmnecujfgurhephffvvefufffkofgjfhgggfestdekredtredttden
+    ucfhrhhomheptfihrghnucghrghlkhhlihhnuceorhihrghnsehtvghsthhtohgrshhtrd
+    gtohhmqeenucggtffrrghtthgvrhhnpeffheeiffegtdfgffejteevgeefkeelieelkeev
+    ueetffetteduffevgeeiieehteenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmh
+    epmhgrihhlfhhrohhmpehrhigrnhesthgvshhtthhorghsthdrtghomhdpnhgspghrtghp
+    thhtohepvdefpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehmrhhiphgrrhguse
+    hkvghrnhgvlhdrohhrghdprhgtphhtthhopeifvghnshestghsihgvrdhorhhgpdhrtghp
+    thhtohepmhgrrghrthgvnhdrlhgrnhhkhhhorhhstheslhhinhhugidrihhnthgvlhdrtg
+    homhdprhgtphhtthhopehtiihimhhmvghrmhgrnhhnsehsuhhsvgdruggvpdhrtghpthht
+    oheprghirhhlihgvugesghhmrghilhdrtghomhdprhgtphhtthhopegurghnihgvlhesfh
+    hffihllhdrtghhpdhrtghpthhtohepjhgvrhhnvghjrdhskhhrrggsvggtsehgmhgrihhl
+    rdgtohhmpdhrtghpthhtohepshgrmhhuvghlsehshhholhhlrghnugdrohhrghdprhgtph
+    htthhopehrohgshheskhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:TS3BZrL-dsSfLczCxr7PMKXPTbQUwUZiGYLeRdWZ3LqtfMh6LDJXYA>
+    <xmx:TS3BZiIi2vONY9YShEqdBAlxeEWUJGOMUMTr4I6GPkZWriUaxIC9-A>
+    <xmx:TS3BZsywyUISxQS4G_AVpRp80S9udgu8CrWNWpvrqf955QLvxbU97g>
+    <xmx:TS3BZmIgZfvsU4XQh_JFp3z8mVwfDCVNvp5HpPvxITdLutg04_TWEg>
+    <xmx:TS3BZnbn4jlQUYKsriXb_UvFfkxG4ZH_BAU9nB6yh183AX4IeHsL37Rg>
+Feedback-ID: idc0145fc:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
+ 17 Aug 2024 19:07:50 -0400 (EDT)
+From: Ryan Walklin <ryan@testtoast.com>
+To: Maxime Ripard <mripard@kernel.org>,
+	Chen-Yu Tsai <wens@csie.org>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>,
+	Daniel Vetter <daniel@ffwll.ch>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Samuel Holland <samuel@sholland.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@kernel.org>
+Cc: Andre Przywara <andre.przywara@arm.com>,
+	Chris Morgan <macroalpha82@gmail.com>,
+	John Watts <contact@jookia.org>,
+	dri-devel@lists.freedesktop.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-sunxi@lists.linux.dev,
+	devicetree@vger.kernel.org,
+	linux-clk@vger.kernel.org,
+	Ryan Walklin <ryan@testtoast.com>,
+	Conor Dooley <conor.dooley@microchip.com>
+Subject: [PATCH v3 19/26] dt-bindings: allwinner: add H616 DE33 bus binding
+Date: Sun, 18 Aug 2024 10:46:06 +1200
+Message-ID: <20240817230503.158889-20-ryan@testtoast.com>
+X-Mailer: git-send-email 2.46.0
+In-Reply-To: <20240817230503.158889-1-ryan@testtoast.com>
+References: <20240817230503.158889-1-ryan@testtoast.com>
+MIME-Version: 1.0
+X-CRM114-Version: 20100106-BlameMichelson ( TRE 0.8.0 (BSD) ) MR-646709E3 
+X-CRM114-CacheID: sfid-20240817_160758_535855_9F07C42D 
+X-CRM114-Status: UNSURE (   9.53  )
+X-CRM114-Notice: Please train this message.
+X-BeenThere: linux-arm-kernel@lists.infradead.org
+X-Mailman-Version: 2.1.34
+Precedence: list
+List-Id: <linux-arm-kernel.lists.infradead.org>
+List-Unsubscribe: 
+ <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: 
+ <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: 
+ linux-arm-kernel-bounces+linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+
+The Allwinner H616 and variants have a new display engine revision
+(DE33).
+
+Add a display engine bus binding for the DE33.
+
+Signed-off-by: Ryan Walklin <ryan@testtoast.com>
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Chen-Yu Tsai <wens@csie.org>
+---
+Changelog v1..v2:
+- Correct DE2 bus enum to reflect fallback devices accurately.
+
+Changelog v2..v3:
+- Separate content into three patches for three separate subsystems
+---
+ .../devicetree/bindings/bus/allwinner,sun50i-a64-de2.yaml     | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/bus/allwinner,sun50i-a64-de2.yaml b/Documentation/devicetree/bindings/bus/allwinner,sun50i-a64-de2.yaml
+index 9845a187bdf65..ea7ee89158c61 100644
+--- a/Documentation/devicetree/bindings/bus/allwinner,sun50i-a64-de2.yaml
++++ b/Documentation/devicetree/bindings/bus/allwinner,sun50i-a64-de2.yaml
+@@ -24,7 +24,9 @@ properties:
+     oneOf:
+       - const: allwinner,sun50i-a64-de2
+       - items:
+-          - const: allwinner,sun50i-h6-de3
++          - enum:
++              - allwinner,sun50i-h6-de3
++              - allwinner,sun50i-h616-de33
+           - const: allwinner,sun50i-a64-de2
+ 
+   reg:
