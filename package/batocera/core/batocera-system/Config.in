@@ -1754,6 +1754,13 @@ config BR2_PACKAGE_REGLINUX_WESTON
 	select BR2_PACKAGE_SEATD_DAEMON
 	select BR2_PACKAGE_WESTON
 
+config BR2_PACKAGE_REGLINUX_HYPRLAND
+	bool "REG-Linux hyprland packages selection"
+
+	select BR2_PACKAGE_SEATD
+	select BR2_PACKAGE_SEATD_DAEMON
+	select BR2_PACKAGE_HYPRLAND
+
 config BR2_PACKAGE_REGLINUX_XWAYLAND
 	bool "REG-Linux xwayland packages selection"
 
