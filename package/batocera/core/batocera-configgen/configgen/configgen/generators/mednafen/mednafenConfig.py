@@ -1,54 +1,14 @@
 #!/usr/bin/env python
 
-from utils.logger import get_logger
+def generateMednafenConfig(cfgConfig, mednafenSystem):
 
-eslog = get_logger(__name__)
+    for system in mednafenSystem:
+        # Enable (automatic) usage of this module.
+        cfgConfig.write(system + ".enable 1\n")
 
-def setMednafenConfig(cfgConfig):
+        # Stretch to fill screen.
+        cfgConfig.write(system + ".stretch full\n")
 
-    # Enable (automatic) usage of this module.
-    cfgConfig.write("apple2.enable 1\n")
-    cfgConfig.write("gb.enable 1\n")
-    cfgConfig.write("gba.enable 1\n")
-    cfgConfig.write("gg.enable 1\n")
-    cfgConfig.write("lynx.enable 1\n")
-    cfgConfig.write("md.enable 1\n")
-    cfgConfig.write("nes.enable 1\n")
-    cfgConfig.write("ngp.enable 1\n")
-    cfgConfig.write("pce.enable 1\n")
-    cfgConfig.write("pce_fast.enable 1\n")
-    cfgConfig.write("pcfx.enable 1\n")
-    cfgConfig.write("psx.enable 1\n")
-    cfgConfig.write("sasplay.enable 1\n")
-    cfgConfig.write("sms.enable 1\n")
-    cfgConfig.write("snes.enable 1\n")
-    cfgConfig.write("snes_faust.enable 1\n")
-    cfgConfig.write("ss.enable 1\n")
-    cfgConfig.write("ssfplay.enable 1\n")
-    cfgConfig.write("vb.enable 1\n")
-    cfgConfig.write("wswan.enable 1\n")
-
-    # Stretch to fill screen.
-    cfgConfig.write("apple2.stretch full\n")
-    cfgConfig.write("gb.stretch full\n")
-    cfgConfig.write("gba.stretch full\n")
-    cfgConfig.write("gg.stretch full\n")
-    cfgConfig.write("lynx.stretch full\n")
-    cfgConfig.write("md.stretch full\n")
-    cfgConfig.write("nes.stretch full\n")
-    cfgConfig.write("ngp.stretch full\n")
-    cfgConfig.write("pce.stretch full\n")
-    cfgConfig.write("pce_fast.stretch full\n")
-    cfgConfig.write("pcfx.stretch full\n")
-    cfgConfig.write("psx.stretch full\n")
-    cfgConfig.write("sasplay.stretch full\n")
-    cfgConfig.write("sms.stretch full\n")
-    cfgConfig.write("snes.stretch full\n")
-    cfgConfig.write("snes_faust.stretch full\n")
-    cfgConfig.write("ss.stretch full\n")
-    cfgConfig.write("ssfplay.stretch full\n")
-    cfgConfig.write("vb.stretch full\n")
-    cfgConfig.write("wswan.stretch full\n")
 
     # Select sound driver.
     cfgConfig.write("sound.driver sdl\n")
