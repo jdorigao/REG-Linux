@@ -8,10 +8,12 @@ from utils.logger import get_logger
 from . import mednafenConfig
 from . import mednafenControllers
 
+eslog = get_logger(__name__)
+
 mednafenConfigDir = batoceraFiles.HOME + "/.mednafen"
 mednafenConfigFile = mednafenConfigDir + "/mednafen.cfg"
 
-eslog = get_logger(__name__)
+mednafenSystem = { "apple2", "gb", "gba", "gg", "lynx", "md", "nes", "ngp", "pce", "pce_fast", "pcfx", "psx", "sasplay", "sms", "snes", "snes_faust", "ss", "ssfplay", "vb", "wswan" }
 
 class MednafenGenerator(Generator):
 
@@ -28,9 +30,11 @@ class MednafenGenerator(Generator):
         cfgConfig = open(mednafenConfigFile, "w")
 
         # Basic settings
-        mednafenConfig.setMednafenConfig(cfgConfig)
+        mednafenConfig.generateMednafenConfig(cfgConfig, mednafenSystem)
+
         # TODO: Controls configuration
-        mednafenControllers.setMednafenControllers(cfgConfig)
+        #for index in playersControllers :
+        #    mednafenControllers.generateControllerConfig(cfgConfig, mednafenSystem, playersControllers[index])
 
         # Close config file as we are done
         cfgConfig.close()
