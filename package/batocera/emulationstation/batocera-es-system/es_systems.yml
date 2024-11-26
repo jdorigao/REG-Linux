@@ -35,6 +35,8 @@ snes-msu1:
       snes9x:      { requireAnyOf: [BR2_PACKAGE_LIBRETRO_SNES9X]    }
       bsnes:       { requireAnyOf: [BR2_PACKAGE_LIBRETRO_BSNES]     }
       bsnes_hd:    { requireAnyOf: [BR2_PACKAGE_LIBRETRO_BSNES_HD]  }
+    mednafen:
+      mednafen: { requireAnyOf: [BR2_PACKAGE_MEDNAFEN] }
 
 c64:
   name:       Commodore 64
@@ -296,6 +298,8 @@ gb:
       mgba:     { requireAnyOf: [BR2_PACKAGE_LIBRETRO_MGBA] }
       vba-m:    { requireAnyOf: [BR2_PACKAGE_LIBRETRO_VBA_M] }
       mesen-s:  { requireAnyOf: [BR2_PACKAGE_LIBRETRO_MESENS] }
+    mednafen:
+      mednafen: { requireAnyOf: [BR2_PACKAGE_MEDNAFEN] }
   comment_en: |
     For more info: https://wiki.batocera.org/systems:gb
   comment_fr: |
@@ -699,6 +703,8 @@ pcfx:
   emulators:
     libretro:
       pcfx: { requireAnyOf: [BR2_PACKAGE_LIBRETRO_BEETLE_PCFX] }
+    mednafen:
+      mednafen: { requireAnyOf: [BR2_PACKAGE_MEDNAFEN] }
 
 scummvm:
   name:       ScummVM
@@ -4887,15 +4893,15 @@ doom3:
             │   ├── pak007.pk4
             │   └── pak008.pk4
             └── d3xp/
-                ├── pak000.pk4 
+                ├── pak000.pk4
                 └── pak001.pk4
-    
-    Create a `Doom 3.d3` file in the roms/doom3 directory. 
+
+    Create a `Doom 3.d3` file in the roms/doom3 directory.
     If you have the Resurrection of Evil mod then Create a `Doom 3 - Resurrection of Evil.d3` file too.
 
     The `Doom 3.d3` file should contain the path to the base game. - i.e. base/pak000.pk4
     Similarly `Doom 3 - Resurrection of Evil.d3` should be - d3xp/pak000.pk4
-    
+
     For more info: https://wiki.batocera.org/systems:doom3
   comment_fr: |
     Trouvez la documentation ici: https://wiki.batocera.org/systems:doom3
