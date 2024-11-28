@@ -1,0 +1,84 @@
+From 3eef85034c96f61b54809e24d4b7f29a336701ae Mon Sep 17 00:00:00 2001
+From: Ryan Walklin <ryan@testtoast.com>
+Date: Wed, 23 Oct 2024 20:57:02 +1300
+Subject: arm64: dts: allwinner: h616: Add audio codec node
+
+Now that the sun4i codec driver supports the H616, add a node in the
+device tree for it (correcting the spdif block location at the same
+time).
+
+Signed-off-by: Ryan Walklin <ryan@testtoast.com>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Link: https://patch.msgid.link/20241023075917.186835-7-ryan@testtoast.com
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+---
+ arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi | 44 +++++++++++++++++---------
+ 1 file changed, 29 insertions(+), 15 deletions(-)
+
+(limited to 'arch/arm64/boot/dts/allwinner')
+
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi
+index e88c1fbac6acc8..cdce3dcb8ec024 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi
+@@ -630,21 +630,6 @@ mdio0: mdio {
+ 			};
+ 		};
+ 
+-		spdif: spdif@5093000 {
+-			compatible = "allwinner,sun50i-h616-spdif";
+-			reg = <0x05093000 0x400>;
+-			interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&ccu CLK_BUS_SPDIF>, <&ccu CLK_SPDIF>;
+-			clock-names = "apb", "spdif";
+-			resets = <&ccu RST_BUS_SPDIF>;
+-			dmas = <&dma 2>;
+-			dma-names = "tx";
+-			pinctrl-names = "default";
+-			pinctrl-0 = <&spdif_tx_pin>;
+-			#sound-dai-cells = <0>;
+-			status = "disabled";
+-		};
+-
+ 		gpadc: adc@5070000 {
+ 			compatible = "allwinner,sun50i-h616-gpadc",
+ 				     "allwinner,sun20i-d1-gpadc";
+@@ -679,6 +664,35 @@ lradc: lradc@5070800 {
+ 			status = "disabled";
+ 		};
+ 
++		spdif: spdif@5093000 {
++			compatible = "allwinner,sun50i-h616-spdif";
++			reg = <0x05093000 0x400>;
++			interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_SPDIF>, <&ccu CLK_SPDIF>;
++			clock-names = "apb", "spdif";
++			resets = <&ccu RST_BUS_SPDIF>;
++			dmas = <&dma 2>;
++			dma-names = "tx";
++			pinctrl-names = "default";
++			pinctrl-0 = <&spdif_tx_pin>;
++			#sound-dai-cells = <0>;
++			status = "disabled";
++		};
++
++		codec: codec@5096000 {
++			#sound-dai-cells = <0>;
++			compatible = "allwinner,sun50i-h616-codec";
++			reg = <0x05096000 0x31c>;
++			interrupts = <GIC_SPI 58 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_AUDIO_CODEC>,
++				 <&ccu CLK_AUDIO_CODEC_1X>;
++			clock-names = "apb", "codec";
++			resets = <&ccu RST_BUS_AUDIO_CODEC>;
++			dmas = <&dma 6>;
++			dma-names = "tx";
++			status = "disabled";
++		};
++
+ 		usbotg: usb@5100000 {
+ 			compatible = "allwinner,sun50i-h616-musb",
+ 				     "allwinner,sun8i-h3-musb";
+-- 
+cgit 1.2.3-korg
+

@@ -1,0 +1,163 @@
+From 86a8f1aef9702f730c824aa96ae24ffa1b401988 Mon Sep 17 00:00:00 2001
+From: Ryan Walklin <ryan@testtoast.com>
+Date: Wed, 23 Oct 2024 20:57:03 +1300
+Subject: arm64: dts: allwinner: h313/h616/h618/h700: Enable audio codec for
+ all supported boards
+
+Now that the H616 (and variants) audio codec is supported, enable it for
+boards with a mainline DTS. The Tanix TX1, Transpeed 8K618-T and X-96
+Mate have all been tested with the onboard 3.5mm audio jack and the
+Orange Pi Zero 3 with a 3.5mm jack connected to the audio header.
+
+The RG35XX (2024, -H, -Plus and -SP variants) are also tested working
+but have a separate mux and GPIO-controlled (PI5) power amplifier to
+support both a headphone jack and onboard speakers.
+
+The headphone jack has a GPIO for jack detection, but this is not
+currently supported by the driver, so audio is heard both via the
+headphone jack and speakers when the speaker amp is powered (by the
+CLDO1 regulator, defined as always-on until proper jack detection is
+implemented).
+
+Define the audio codec and routing for all supported H616 and variant
+boards, and power and speaker amp enablement where present on boards and
+known.
+
+Signed-off-by: Ryan Walklin <ryan@testtoast.com>
+Tested-by: Philippe Simons <simons.philippe@gmail.com>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Tested-by: Andre Przywara <andre.przywara@arm.com>
+Link: https://patch.msgid.link/20241023075917.186835-8-ryan@testtoast.com
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+---
+ arch/arm64/boot/dts/allwinner/sun50i-h313-tanix-tx1.dts     |  5 +++++
+ .../arm64/boot/dts/allwinner/sun50i-h616-orangepi-zero.dtsi |  5 +++++
+ arch/arm64/boot/dts/allwinner/sun50i-h616-x96-mate.dts      |  5 +++++
+ .../boot/dts/allwinner/sun50i-h618-orangepi-zero2w.dts      |  5 +++++
+ .../boot/dts/allwinner/sun50i-h618-transpeed-8k618-t.dts    |  5 +++++
+ .../boot/dts/allwinner/sun50i-h700-anbernic-rg35xx-2024.dts | 13 +++++++++++--
+ 6 files changed, 36 insertions(+), 2 deletions(-)
+
+(limited to 'arch/arm64/boot/dts/allwinner')
+
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h313-tanix-tx1.dts b/arch/arm64/boot/dts/allwinner/sun50i-h313-tanix-tx1.dts
+index bb2cde59bd0338..bafd3e803106b7 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h313-tanix-tx1.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h313-tanix-tx1.dts
+@@ -65,6 +65,11 @@ reg_vcc5v: vcc5v {
+ 	};
+ };
+ 
++&codec {
++	allwinner,audio-routing = "Line Out", "LINEOUT";
++	status = "okay";
++};
++
+ &cpu0 {
+ 	cpu-supply = <&reg_dcdc2>;
+ };
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h616-orangepi-zero.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-h616-orangepi-zero.dtsi
+index fc7315b9440659..19c5cf75f3f7d6 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h616-orangepi-zero.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h616-orangepi-zero.dtsi
+@@ -59,6 +59,11 @@ reg_usb1_vbus: regulator-usb1-vbus {
+ 	};
+ };
+ 
++&codec {
++	allwinner,audio-routing = "Line Out", "LINEOUT";
++	status = "okay";
++};
++
+ &ehci1 {
+ 	status = "okay";
+ };
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h616-x96-mate.dts b/arch/arm64/boot/dts/allwinner/sun50i-h616-x96-mate.dts
+index 26d25b5b59e0f8..6dfe4eab91f6ab 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h616-x96-mate.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h616-x96-mate.dts
+@@ -33,6 +33,11 @@ reg_vcc5v: vcc5v {
+ 	};
+ };
+ 
++&codec {
++	allwinner,audio-routing = "Line Out", "LINEOUT";
++	status = "okay";
++};
++
+ &cpu0 {
+ 	cpu-supply = <&reg_dcdca>;
+ };
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h618-orangepi-zero2w.dts b/arch/arm64/boot/dts/allwinner/sun50i-h618-orangepi-zero2w.dts
+index 6a4f0da9723303..a0fe7a9afb77c2 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h618-orangepi-zero2w.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h618-orangepi-zero2w.dts
+@@ -54,6 +54,11 @@ reg_vcc3v3: vcc3v3 {
+ 	};
+ };
+ 
++&codec {
++	allwinner,audio-routing = "Line Out", "LINEOUT";
++	status = "okay";
++};
++
+ &cpu0 {
+ 	cpu-supply = <&reg_dcdc2>;
+ };
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h618-transpeed-8k618-t.dts b/arch/arm64/boot/dts/allwinner/sun50i-h618-transpeed-8k618-t.dts
+index d6631bfe629fa3..59ee2b253ea4bb 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h618-transpeed-8k618-t.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h618-transpeed-8k618-t.dts
+@@ -52,6 +52,11 @@ wifi_pwrseq: pwrseq {
+ 	};
+ };
+ 
++&codec {
++	allwinner,audio-routing = "Line Out", "LINEOUT";
++	status = "okay";
++};
++
+ &cpu0 {
+ 	cpu-supply = <&reg_dcdc2>;
+ };
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h700-anbernic-rg35xx-2024.dts b/arch/arm64/boot/dts/allwinner/sun50i-h700-anbernic-rg35xx-2024.dts
+index 80ccab7b5ba750..a231abf1684ad6 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h700-anbernic-rg35xx-2024.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h700-anbernic-rg35xx-2024.dts
+@@ -177,6 +177,12 @@ reg_vcc5v: regulator-vcc5v { /* USB-C power input */
+ 	};
+ };
+ 
++&codec {
++	allwinner,audio-routing = "Line Out", "LINEOUT";
++	allwinner,pa-gpios = <&pio 8 5 GPIO_ACTIVE_HIGH>; // PI5
++	status = "okay";
++};
++
+ &cpu0 {
+ 	cpu-supply = <&reg_dcdc1>;
+ };
+@@ -270,7 +276,7 @@ reg_aldo3: aldo3 {
+ 			reg_aldo4: aldo4 {
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
+-				regulator-name = "vcc-pg";
++				regulator-name = "avcc";
+ 			};
+ 
+ 			reg_bldo1: bldo1 {
+@@ -293,7 +299,10 @@ reg_bldo4: bldo4 {
+ 			};
+ 
+ 			reg_cldo1: cldo1 {
+-				/* 3.3v - audio codec - not yet implemented */
++				regulator-always-on;
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-name = "vcc-spkr-amp";
+ 			};
+ 
+ 			reg_cldo2: cldo2 {
+-- 
+cgit 1.2.3-korg
+
