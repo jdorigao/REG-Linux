@@ -361,7 +361,8 @@ config BR2_PACKAGE_REGLINUX_SYSTEM
 						   !BR2_PACKAGE_BATOCERA_TARGET_RK3588		&& \
 						   !BR2_PACKAGE_BATOCERA_TARGET_RK3128		&& \
 						   !BR2_PACKAGE_BATOCERA_TARGET_S812		&& \
-						   !BR2_PACKAGE_BATOCERA_TARGET_ODIN
+						   !BR2_PACKAGE_BATOCERA_TARGET_ODIN		&& \
+						   !BR2_PACKAGE_BATOCERA_TARGET_H616
 
 	select BR2_PACKAGE_RTL8821AU_MORROWNR	if BR2_PACKAGE_BATOCERA_TARGET_S922X || BR2_PACKAGE_BATOCERA_TARGET_A3GEN2 || BR2_PACKAGE_BATOCERA_TARGET_X86_ANY
 	select BR2_PACKAGE_RTL88X2BU		if BR2_PACKAGE_BATOCERA_TARGET_S922X || BR2_PACKAGE_BATOCERA_TARGET_A3GEN2 || BR2_PACKAGE_BATOCERA_TARGET_X86_ANY
@@ -479,7 +480,7 @@ config BR2_TARGET_BATOCERA_IMAGES_DEFINITIONS
 	default "allwinner/h3/cha"									if BR2_PACKAGE_BATOCERA_TARGET_CHA
 	default "allwinner/h5/tritium-h5 allwinner/h5/orangepi-pc2"					if BR2_PACKAGE_BATOCERA_TARGET_H5
 	default "allwinner/h6/orangepi-3-lts allwinner/h6/orangepi-3 allwinner/h6/orangepi-one-plus"	if BR2_PACKAGE_BATOCERA_TARGET_H6
-#allwinner/h616/bananapi-m4-berry 
+#allwinner/h616/bananapi-m4-berry
 	default "allwinner/h616/anbernic-rg35xx allwinner/h616/orangepi-zero2 allwinner/h616/orangepi-zero2w allwinner/h616/orangepi-zero3 allwinner/h616/x96-mate" \
 													if BR2_PACKAGE_BATOCERA_TARGET_H616
 
