@@ -1,0 +1,12 @@
+config BR2_PACKAGE_HYPRLAND
+	bool "hyprland"
+	select BR2_PACKAGE_CAIRO
+	select BR2_PACKAGE_CAIRO_PNG
+	select BR2_PACKAGE_PANGO
+
+	help
+	  Hyprland is a 100% independent, dynamic
+	  tiling Wayland compositor that doesn't
+	  sacrifice on its looks.
+
+	  https://hyprland.org/
