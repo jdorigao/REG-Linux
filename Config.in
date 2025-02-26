@@ -598,6 +598,7 @@ menu "REG.linux"
   source "$BR2_EXTERNAL_REGLINUX_PATH/package/reglinux/utils/wlr-randr/Config.in"
   source "$BR2_EXTERNAL_REGLINUX_PATH/package/reglinux/utils/wsdd-native/Config.in"
   source "$BR2_EXTERNAL_REGLINUX_PATH/package/reglinux/utils/xxd/Config.in"
+  source "$BR2_EXTERNAL_REGLINUX_PATH/package/reglinux/utils/labwc/Config.in"
 
   source "$BR2_EXTERNAL_REGLINUX_PATH/package/reglinux/reglinux-emulationstation/Config.in"
   source "$BR2_EXTERNAL_REGLINUX_PATH/package/reglinux/reglinux-exfat/Config.in"

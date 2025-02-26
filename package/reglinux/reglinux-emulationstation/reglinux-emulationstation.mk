@@ -142,6 +142,12 @@ REGLINUX_EMULATIONSTATION_DEPENDENCIES += sway
 REGLINUX_EMULATIONSTATION_POST_INSTALL_TARGET_HOOKS += REGLINUX_EMULATIONSTATION_WAYLAND_SWAY
 endif
 
+## on Wayland sway runs ES
+ifeq ($(BR2_PACKAGE_REGLINUX_LABWC),y)
+REGLINUX_EMULATIONSTATION_DEPENDENCIES += labwc
+REGLINUX_EMULATIONSTATION_CMD = /usr/bin/labwc -s emulationstation-standalone
+endif
+
 define REGLINUX_EMULATIONSTATION_WAYLAND_SWAY
 	$(INSTALL) -D -m 0755 $(BR2_EXTERNAL_REGLINUX_PATH)/package/reglinux/reglinux-emulationstation/wayland/sway/04-sway.sh		$(TARGET_DIR)/etc/profile.d/04-sway.sh
 	$(INSTALL) -D -m 0755 $(BR2_EXTERNAL_REGLINUX_PATH)/package/reglinux/reglinux-emulationstation/wayland/sway/config		$(TARGET_DIR)/etc/sway/config

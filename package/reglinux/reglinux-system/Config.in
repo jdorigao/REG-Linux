@@ -1834,6 +1834,13 @@ config BR2_PACKAGE_REGLINUX_SDL2
 	select BR2_PACKAGE_LIBMODPLUG		# modules (mod,xm,s3m,it...)
 	select BR2_PACKAGE_LIBVORBIS		# ogg
 
+config BR2_PACKAGE_REGLINUX_LABWC
+	bool "REG-Linux labwc packages selection"
+
+	select BR2_PACKAGE_SEATD
+	select BR2_PACKAGE_SEATD_DAEMON
+	select BR2_PACKAGE_LABWC
+
 config BR2_PACKAGE_REGLINUX_SWAY
 	bool "REG-Linux sway packages selection"
 
