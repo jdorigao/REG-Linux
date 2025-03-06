@@ -15,19 +15,19 @@ eslog = get_logger(__name__)
 
 # Set a specific video mode
 def changeMode(videomode):
-    if process_status("sway"):
+    if process_status("sway, labwc"):
         return waylandChangeMode(videomode)
     else:
         return drmChangeMode(videomode)
 
 def getCurrentMode():
-    if process_status("sway"):
+    if process_status("sway, labwc"):
         return waylandGetCurrentMode()
     else:
         return drmGetCurrentMode()
 
 def getCurrentResolution(name=None):
-    if process_status("sway"):
+    if process_status("sway, labwc"):
         return waylandGetCurrentResolution(name)
     else:
         return drmGetCurrentResolution(name)
@@ -35,7 +35,7 @@ def getCurrentResolution(name=None):
 def minTomaxResolution():
     current = getCurrentResolution()
     resolution = str(current["width"]) + "x" + str(current["height"])
-    if process_status("sway"):
+    if process_status("sway, labwc"):
         return waylandMinTomaxResolution(resolution)
     else:
         return drmMinTomaxResolution(resolution)

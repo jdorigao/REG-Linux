@@ -1891,6 +1891,15 @@ config BR2_PACKAGE_REGLINUX_SWAY
 	select BR2_PACKAGE_SWAY
 	select BR2_PACKAGE_SWAYBG
 
+config BR2_PACKAGE_REGLINUX_LABWC
+	bool "REG-Linux labwc packages selection"
+
+	select BR2_PACKAGE_SEATD
+	select BR2_PACKAGE_SEATD_DAEMON
+	select BR2_PACKAGE_LABWC
+	select BR2_PACKAGE_SWAYBG
+	select BR2_PACKAGE_WLR_RANDR
+
 config BR2_PACKAGE_REGLINUX_GAMESCOPE
 	bool "REG-Linux gamescope packages selection"
 

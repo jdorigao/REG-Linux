@@ -259,7 +259,7 @@ def start_rom(args, maxnbplayers, rom, romConfiguration):
 
         # start a compositor if needed
         if generator.requiresWayland() or generator.requiresX11():
-            if not videoMode.process_status("sway"):
+            if not videoMode.process_status("sway, labwc"):
                 windowsManager.start_compositor(generator, system)
 
         # run the emulator

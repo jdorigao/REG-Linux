@@ -16,7 +16,9 @@ case "$1" in
         if [ "$enabled" != "0" ]; then
 		environment="$(/usr/bin/system-settings-get-master system.es.environment)"
 		if [ "$environment" = "wayland" ]; then
-			if [ -e /usr/bin/sway ]; then
+			if [ -e /usr/bin/labwc ]; then
+				WLR_LIBINPUT_NO_DEVICES=1 /usr/bin/labwc -s %REGLINUX_EMULATIONSTATION_CMD% %REGLINUX_EMULATIONSTATION_POSTFIX%
+			else
 				SWAY_LOG_FILE=/userdata/system/logs/sway.log
 				WLR_LIBINPUT_NO_DEVICES=1 /usr/bin/sway -d > ${SWAY_LOG_FILE} 2>&1 &
 			fi

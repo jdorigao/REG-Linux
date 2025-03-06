@@ -1,0 +1,13 @@
+diff --git a/src/main.c b/src/main.c
+index 403589f..d65a6a4 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -165,7 +165,7 @@ main(int argc, char *argv[])
+ 
+ 	wlr_log_init(verbosity, NULL);
+ 
+-	die_on_detecting_suid();
++	//die_on_detecting_suid();
+ 
+ 	session_environment_init();
+ 

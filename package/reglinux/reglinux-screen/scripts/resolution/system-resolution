@@ -2,6 +2,8 @@
 
 if [ "$(pgrep -x sway)" ]; then
     source /etc/reglinux/resolution.sway
+elif [ "$(pgrep -x labwc)" ]; then
+    source /etc/reglinux/resolution.labwc
 else
     source /etc/reglinux/resolution.drm
 fi
