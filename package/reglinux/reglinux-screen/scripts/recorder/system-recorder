@@ -7,9 +7,12 @@ else
 fi
 
 usage() {
-    echo "${1} --default"     >&2
-    echo "${1} --fast"        >&2
-    echo "${1} --compress"    >&2
+    printf "
+    Usage: system-record [options]
+        --default
+        --fast
+        --compress
+        "
 }
 
 ACTION=$1

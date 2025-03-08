@@ -7,16 +7,19 @@ else
 fi
 
 f_usage() {
-    echo "${0} listModes" >&2
-    echo "${0} listOutputs" >&2
-    echo "${0} currentMode" >&2
-    echo "${0} currentOutput" >&2
-    echo "${0} currentResolution" >&2
-    echo "${0} setMode <MODE>" >&2
-    echo "${0} setOutput <OUTPUT>" >&2
-    echo "${0} setRotation (0|1|2|3)" >&2
-    echo "${0} getDisplayMode" >&2
-    echo "${0} getRefreshRate" >&2
+    printf "
+    Usage: system-resolution [options]
+        --listModes
+        --listOutputs
+        --currentMode
+        --currentOutput
+        --currentResolution
+        --setMode <MODE>
+        --setOutput <OUTPUT>
+        --setRotation (0|1|2|3)
+        --getDisplayMode
+        --getRefreshRate
+        "
 }
 
 if [ $# -eq 0 ]; then
@@ -37,48 +40,50 @@ ACTION=$1
 shift
 
 case "${ACTION}" in
-    "listModes")
+    "listModes" | "--listModes")
         listModes
     ;;
-    "listOutputs")
+    "listOutputs" | "--listOutputs")
         listOutputs
     ;;
-    "currentMode")
+    "currentMode" | "--currentMode")
         currentMode
     ;;
-    "currentOutput")
+    "currentOutput" | "--currentOutput")
         currentOutput
     ;;
-    "currentResolution")
+    "currentResolution" | "--currentResolution")
         currentResolution
     ;;
-    "setMode")
+    "setMode" | "--setMode")
         setMode "$1"
     ;;
-    "setOutput")
+    "setOutput" | "--setOutput")
         setOutput "$1"
     ;;
-    "setRotation")
+    "setRotation" | "--setRotation")
         setRotation "$1"
     ;;
-    "getDisplayMode")
+    "getDisplayMode" | "--getDisplayMode")
         getDisplayMode
     ;;
-    "getRefreshRate")
+    "getRefreshRate" | "--getRefreshRate")
         getRefreshRate
     ;;
-    "mapTouchScreen")
+    "mapTouchScreen" | "--mapTouchScreen")
         mapTouchScreen
     ;;
-    "minTomaxResolution" | "minTomaxResolution-secure")
+    "minTomaxResolution" | "minTomaxResolution-secure" | "--minTomaxResolution" | "--minTomaxResolution-secure")
         minTomaxResolution "$1"
     ;;
-    "supportSystemRotation")
+    "supportSystemRotation" | "--supportSystemRotation")
         supportSystemRotation
     ;;
     *)
+        printf "
+        error: invalid command ${ACTION}
+        "
         f_usage
-        >&2 echo "error: invalid command ${ACTION}"
         exit 1
 esac
 exit 0
