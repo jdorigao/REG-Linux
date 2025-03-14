@@ -171,6 +171,8 @@ eeba892062b73d632e16ff6c71a03c24  package/x11r7/xlib_libXdmcp/xlib_libXdmcp.hash
 a861f3930a6f39ec350fe760022afaa5  package/x11r7/xlib_libXext/xlib_libXext.mk
 f8b05a507a8e380b18272a3b02f344eb  package/x11r7/xlib_libXrandr/xlib_libXrandr.hash
 deac5fae112d3da3f0ec5a6cabecb573  package/x11r7/xlib_libXrandr/xlib_libXrandr.mk
+8616d88351c8951f3c10591abb7ea9d1  package/x11r7/xorgproto/xorgproto.hash
+587b2b90bc512cba5a60aec1f66e80bc  package/x11r7/xorgproto/xorgproto.mk
 d7b74d14ad6a0e098eac396570f30179  package/x11r7/xwayland/xwayland.hash
 83c6b7da1342bedea5c0b90849321185  package/x11r7/xwayland/xwayland.mk
 1b3f7f9c043617b73d8fd2e8d51ead59  package/zstd/zstd.hash
