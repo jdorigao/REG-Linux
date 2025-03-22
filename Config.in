@@ -243,6 +243,7 @@ menu "Utils"
 	source "$BR2_EXTERNAL_REGLINUX_PATH/package/utils/wlr-randr/Config.in"
 	source "$BR2_EXTERNAL_REGLINUX_PATH/package/utils/wsdd-native/Config.in"
 	source "$BR2_EXTERNAL_REGLINUX_PATH/package/utils/xxd/Config.in"
+	source "$BR2_EXTERNAL_REGLINUX_PATH/package/utils/regmsg/Config.in"
 endmenu
 
 menu "Firmwares"
