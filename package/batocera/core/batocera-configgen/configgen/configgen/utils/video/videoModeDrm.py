@@ -89,7 +89,7 @@ def drmGetScreensInfos(config):
     return res
 
 def drmGetScreens():
-    proc = subprocess.Popen(["system-resolution listOutputs"], stdout=subprocess.PIPE, shell=True)
+    proc = subprocess.Popen(["regmsg listOutputs"], stdout=subprocess.PIPE, shell=True)
     (out, err) = proc.communicate()
     return out.decode().splitlines()
 
@@ -128,13 +128,13 @@ def drmGetCurrentResolution(name = None):
                 height = resolution.split('x')[1]
                 return { "width": int(width), "height": int(height) }
     else:
-        proc = subprocess.Popen(["system-resolution --screen {} currentResolution".format(name)], stdout=subprocess.PIPE, shell=True)
+        proc = subprocess.Popen(["regmsg --screen {} currentResolution".format(name)], stdout=subprocess.PIPE, shell=True)
         (out, err) = proc.communicate()
         vals = out.decode().split("x")
         return { "width": int(vals[0]), "height": int(vals[1]) }
 
 def drmSupportSystemRotation():
-    proc = subprocess.Popen(["system-resolution supportSystemRotation"], stdout=subprocess.PIPE, shell=True)
+    proc = subprocess.Popen(["regmsg supportSystemRotation"], stdout=subprocess.PIPE, shell=True)
     (out, err) = proc.communicate()
     return proc.returncode == 0
 
