@@ -600,8 +600,8 @@ supervision:
   emulator: libretro
   core:     potator
 switch:
-  emulator: citron
-  core:     citron
+  emulator: ryujinx
+  core:     ryujinx
   options:
     hud_support: false
 systemsp:
