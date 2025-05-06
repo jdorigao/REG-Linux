@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ... import Command, controllersConfig
-from ...batoceraPaths import CONFIGS
+
+from ... import Command
 from ..Generator import Generator
 
 if TYPE_CHECKING:
@@ -25,7 +25,6 @@ class TaradinoGenerator(Generator):
         return Command.Command(
             array=commandArray,
             env={
-                "XDG_DATA_DIRS": "/userdata/roms/rott",
-                "SDL_GAMECONTROLLERCONFIG": controllersConfig.generateSdlGameControllerConfig(playersControllers)
+                "XDG_DATA_DIRS": "/userdata/roms/rott"
             }
         )

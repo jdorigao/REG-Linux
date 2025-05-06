@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-from controllersConfig import Input
 from xml.dom import minidom
 from . import mupenConfig
 

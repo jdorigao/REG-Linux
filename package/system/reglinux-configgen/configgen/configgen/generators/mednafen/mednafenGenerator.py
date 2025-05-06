@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from generators.Generator import Generator
-import systemFiles
 import Command
 import os
 from . import mednafenConfig

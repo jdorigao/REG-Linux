@@ -8,7 +8,6 @@ import configparser
 import ruamel.yaml as yaml
 import re
 import subprocess
-import controllersConfig
 import systemFiles
 from os import path
 from . import rpcs3Controllers
@@ -356,10 +355,6 @@ class Rpcs3Generator(Generator):
             romBasename = path.basename(rom)
             romName = rom + "/PS3_GAME/USRDIR/EBOOT.BIN"
 
-        # write our own gamecontrollerdb.txt file before launching the game
-        dbfile = "/userdata/system/configs/rpcs3/input_configs/gamecontrollerdb.txt"
-        controllersConfig.writeSDLGameDBAllControllers(playersControllers, dbfile)
-
         commandArray = [rpcs3Config.rpcs3Bin, romName]
 
         if not (system.isOptSet("rpcs3_gui") and system.getOptBoolean("rpcs3_gui")):
@@ -370,12 +365,7 @@ class Rpcs3Generator(Generator):
           if os.path.exists("/userdata/bios/PS3UPDAT.PUP"):
             commandArray = [rpcs3Config.rpcs3Bin, "--installfw", "/userdata/bios/PS3UPDAT.PUP"]
 
-        return Command.Command(
-            array=commandArray,
-            env={
-                "SDL_GAMECONTROLLERCONFIG": controllersConfig.generateSdlGameControllerConfig(playersControllers)
-            }
-        )
+        return Command.Command(array=commandArray)
 
     def getClosestRatio(gameResolution):
         screenRatio = gameResolution["width"] / gameResolution["height"]

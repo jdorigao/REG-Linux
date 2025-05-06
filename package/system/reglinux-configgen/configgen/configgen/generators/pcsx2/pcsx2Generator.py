@@ -11,7 +11,6 @@ import time
 import shutil
 import subprocess
 import systemFiles
-import controllersConfig
 
 from utils.logger import get_logger
 eslog = get_logger(__name__)
@@ -74,21 +73,12 @@ class Pcsx2Generator(Generator):
         configureINI(pcsx2ConfigDir, pcsx2BiosDir, system, rom, playersControllers, metadata, guns, wheels, playingWithWheel)
         configureAudio(pcsx2ConfigDir)
 
-        # write our own game_controller_db.txt file before launching the game
-        dbfile = pcsx2ConfigDir + "/game_controller_db.txt"
-        controllersConfig.writeSDLGameDBAllControllers(playersControllers, dbfile)
-
         commandArray = ["/usr/pcsx2/bin/pcsx2-qt"] if rom == "config" else \
               ["/usr/pcsx2/bin/pcsx2-qt", "-nogui", rom]
 
         with open("/proc/cpuinfo") as cpuinfo:
             if not re.search(r'^flags\s*:.*\ssse4_1\W', cpuinfo.read(), re.MULTILINE):
                 eslog.warning("CPU does not support SSE4.1 which is required by pcsx2.  The emulator will likely crash with SIGILL (illegal instruction).")
-
-        # wheels won't work correctly when SDL_GAMECONTROLLERCONFIG is set. excluding wheels from SDL_GAMECONTROLLERCONFIG doesn't fix too.
-        # wheel metadata
-        if not Pcsx2Generator.useEmulatorWheels(playingWithWheel, Pcsx2Generator.getWheelType(metadata, playingWithWheel, system.config)):
-            envcmd["SDL_GAMECONTROLLERCONFIG"] = controllersConfig.generateSdlGameControllerConfig(playersControllers)
 
         # ensure we have the patches.zip file to avoid message.
         if not os.path.exists(pcsx2BiosDir):
@@ -97,10 +87,7 @@ class Pcsx2Generator(Generator):
             source_file = "/usr/share/reglinux/datainit/bios/ps2/patches.zip"
             shutil.copy(source_file, pcsx2Patches)
 
-        return Command.Command(
-            array=commandArray,
-            env=envcmd
-        )
+        return Command.Command(array=commandArray)
 
 def getGfxRatioFromConfig(config, gameResolution):
     # 2: 4:3 ; 1: 16:9

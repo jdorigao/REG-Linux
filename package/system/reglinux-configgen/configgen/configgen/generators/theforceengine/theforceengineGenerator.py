@@ -2,7 +2,6 @@
 
 from generators.Generator import Generator
 import Command
-import controllersConfig
 import configparser
 import os
 import systemFiles
@@ -227,13 +226,7 @@ class TheForceEngineGenerator(Generator):
         # Run - only Dark Forces currently
         commandArray.extend(["-gDARK"])
 
-        return Command.Command(
-            array=commandArray,
-            env={
-                "SDL_GAMECONTROLLERCONFIG": controllersConfig.generateSdlGameControllerConfig(playersControllers),
-                "TFE_DATA_HOME": forceConfigDir
-            }
-        )
+        return Command.Command(array=commandArray, env={"TFE_DATA_HOME": forceConfigDir})
 
     # Show mouse for menu actions
     def getMouseMode(self, config, rom):

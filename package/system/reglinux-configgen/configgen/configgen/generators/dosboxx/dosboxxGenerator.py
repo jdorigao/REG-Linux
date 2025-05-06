@@ -3,7 +3,6 @@
 from generators.Generator import Generator
 import Command
 import configparser
-import systemFiles
 import os.path, shutil
 from . import dosboxxConfig
 

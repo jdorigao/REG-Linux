@@ -4,7 +4,6 @@ from generators.Generator import Generator
 import Command
 import os
 import subprocess
-import controllersConfig
 
 class WineGenerator(Generator):
     # this emulator/core requires a X server to run
@@ -28,13 +27,6 @@ class WineGenerator(Generator):
                 environment.update({
                     "LANG": language + ".UTF-8",
                     "LC_ALL": language + ".UTF-8"
-                    }
-                )
-            # sdl controller option - default is on
-            if not system.isOptSet("sdl_config") or system.getOptBoolean("sdl_config"):
-                environment.update(
-                    {
-                        "SDL_GAMECONTROLLERCONFIG": controllersConfig.generateSdlGameControllerConfig(playersControllers)
                     }
                 )
             # ensure nvidia driver used for vulkan

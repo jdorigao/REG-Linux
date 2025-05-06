@@ -3,7 +3,6 @@
 from generators.Generator import Generator
 import Command
 import systemFiles
-import controllersConfig
 import configparser
 import os.path
 from os import environ
@@ -516,16 +515,7 @@ class DuckstationGenerator(Generator):
         with open(settings_path, 'w') as configfile:
             settings.write(configfile)
 
-        # write our own gamecontrollerdb.txt file before launching the game
-        dbfile = "/usr/share/duckstation/resources/gamecontrollerdb.txt"
-        controllersConfig.writeSDLGameDBAllControllers(playersControllers, dbfile)
-
-        return Command.Command(
-            array=commandArray,
-            env={
-                "SDL_GAMECONTROLLERCONFIG": controllersConfig.generateSdlGameControllerConfig(playersControllers)
-            }
-        )
+        return Command.Command(array=commandArray)
 
 def getLangFromEnvironment():
     lang = environ['LANG'][:5]

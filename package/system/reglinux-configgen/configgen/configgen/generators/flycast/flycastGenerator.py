@@ -5,7 +5,6 @@ import Command
 import os.path
 import configparser
 import systemFiles
-import controllersConfig
 from shutil import copyfile
 from os.path import isdir
 from os.path import isfile
@@ -189,7 +188,6 @@ class FlycastGenerator(Generator):
             env={
                 "XDG_CONFIG_DIRS":systemFiles.CONF,
                 "FLYCAST_DATADIR":flycastConfig.flycastSaves,
-                "FLYCAST_BIOS_PATH":flycastConfig.flycastBios,
-                "SDL_GAMECONTROLLERCONFIG": controllersConfig.generateSdlGameControllerConfig(playersControllers)
+                "FLYCAST_BIOS_PATH":flycastConfig.flycastBios
             }
         )

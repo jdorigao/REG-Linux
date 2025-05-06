@@ -3,7 +3,6 @@
 from generators.Generator import Generator
 import os
 import Command
-import controllersConfig
 
 
 class DevilutionXGenerator(Generator):
@@ -25,8 +24,4 @@ class DevilutionXGenerator(Generator):
 
         if system.isOptSet('showFPS') and system.getOptBoolean('showFPS') == True:
             commandArray.append('-f')
-        return Command.Command(
-            array=commandArray,
-            env={
-                'SDL_GAMECONTROLLERCONFIG': controllersConfig.generateSdlGameControllerConfig(playersControllers)
-            })
+        return Command.Command(array=commandArray)

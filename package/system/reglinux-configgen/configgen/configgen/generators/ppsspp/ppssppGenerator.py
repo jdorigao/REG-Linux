@@ -3,8 +3,6 @@
 from generators.Generator import Generator
 import Command
 import os
-import systemFiles
-import controllersConfig
 from . import ppssppConfig
 from . import ppssppControllers
 
@@ -53,12 +51,7 @@ class PPSSPPGenerator(Generator):
                 commandArray.extend(["--njoy", str(pad.index)])
             nplayer = nplayer +1
 
-        return Command.Command(
-            array=commandArray,
-            env={
-                "SDL_GAMECONTROLLERCONFIG": controllersConfig.generateSdlGameControllerConfig(playersControllers)
-            }
-        )
+        return Command.Command(array=commandArray)
 
     @staticmethod
     def isLowResolution(gameResolution):

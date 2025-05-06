@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import controllersConfig
 profiler = None
 
 # 1) touch /var/run/emulatorlauncher.perf
@@ -32,7 +33,6 @@ eslog = get_logger(__name__)
 ############################
 
 from Emulator import Emulator
-import controllersConfig as controllers
 import utils.bezels as bezelsUtil
 
 def squashfs_begin(rom):
@@ -117,9 +117,6 @@ def start_rom(args, maxnbplayers, rom, romConfiguration):
         ci["nbaxes"]     = getattr(args, "p{}nbaxes"    .format(p))
         controllersInput.append(ci)
 
-    # Read the controller configuration
-    playersControllers = controllers.loadControllerConfig(controllersInput)
-
     # find the system to run
     systemName = args.system
     eslog.debug(f"Running system: {systemName}")
@@ -142,14 +139,14 @@ def start_rom(args, maxnbplayers, rom, romConfiguration):
             eslog.debug("emulator: {}".format(system.config["emulator"]))
 
     # metadata
-    metadata = controllers.getGamesMetaData(systemName, rom)
+    metadata = controllersConfig.getGamesMetaData(systemName, rom)
 
     # search guns in case use_guns is enabled for this game
     # force use_guns in case es tells it has a gun
     if system.isOptSet('use_guns') == False and args.lightgun:
         system.config["use_guns"] = True
     if system.isOptSet('use_guns') and system.getOptBoolean('use_guns'):
-        guns = controllers.getGuns()
+        guns = controllersConfig.getGuns()
         if "core" in system.config:
             gunsUtils.precalibration(systemName, system.config['emulator'], system.config["core"], rom)
         else:
@@ -164,7 +161,7 @@ def start_rom(args, maxnbplayers, rom, romConfiguration):
     if system.isOptSet('use_wheels') == False and args.wheel:
         system.config["use_wheels"] = True
     if system.isOptSet('use_wheels') and system.getOptBoolean('use_wheels'):
-        deviceInfos = controllers.getDevicesInformation()
+        deviceInfos = controllersConfig.getDevicesInformation()
         (wheelProcesses, playersControllers, deviceInfos) = wheelsUtils.reconfigureControllers(playersControllers, system, rom, metadata, deviceInfos)
         wheels = wheelsUtils.getWheelsFromDevicesInfos(deviceInfos)
     else:
@@ -267,7 +264,7 @@ def start_rom(args, maxnbplayers, rom, romConfiguration):
             cmd = generator.generate(system, rom, playersControllers, metadata, guns, wheels, gameResolution)
 
             if system.isOptSet('hud_support') and os.path.exists("/usr/bin/mangohud") and system.getOptBoolean('hud_support') == True:
-                hud_bezel = getHudBezel(system, generator, rom, gameResolution, controllers.gunsBordersSizeName(guns, system.config))
+                hud_bezel = getHudBezel(system, generator, rom, gameResolution, controllersConfig.gunsBordersSizeName(guns, system.config))
                 if (system.isOptSet('hud') and system.config['hud'] != "" and system.config['hud'] != "none") or hud_bezel is not None:
                     gameinfos = extractGameInfosFromXml(args.gameinfoxml)
                     cmd.env["MANGOHUD_DLSYM"] = "1"

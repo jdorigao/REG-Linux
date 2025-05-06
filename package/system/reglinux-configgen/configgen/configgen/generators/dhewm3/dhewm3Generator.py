@@ -6,8 +6,8 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
-from ... import Command, controllersConfig
-from ...batoceraPaths import CONFIGS, SAVES
+from ... import Command
+from ...systemFiles import CONFIGS
 from ..Generator import Generator
 
 if TYPE_CHECKING:
@@ -115,12 +115,7 @@ class Dhewm3Generator(Generator):
                 "+set", "fs_game", str(directory)
             ])
 
-        return Command.Command(
-            array=commandArray,
-            env={
-                "SDL_GAMECONTROLLERCONFIG": controllersConfig.generateSdlGameControllerConfig(playersControllers)
-            }
-        )
+        return Command.Command(array=commandArray)
 
     def getInGameRatio(self, config, gameResolution, rom):
         return 16 / 9

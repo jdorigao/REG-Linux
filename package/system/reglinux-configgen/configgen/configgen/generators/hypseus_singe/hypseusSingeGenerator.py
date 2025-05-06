@@ -301,14 +301,7 @@ class HypseusSingeGenerator(Generator):
         if os.path.isfile(commandsFile):
             commandArray.extend(open(commandsFile,'r').read().split())
 
-        # We now use SDL controller config
-        return Command.Command(
-            array=commandArray,
-            env={
-                'SDL_GAMECONTROLLERCONFIG': controllersConfig.generateSdlGameControllerConfig(playersControllers),
-                'MANYMOUSE_NO_XINPUT2': 'x' # disable xorg mouse => forces evdev mouse
-            }
-        )
+        return Command.Command(array=commandArray)
 
     def getInGameRatio(self, config, gameResolution, rom):
         if "hypseus_ratio" in config:

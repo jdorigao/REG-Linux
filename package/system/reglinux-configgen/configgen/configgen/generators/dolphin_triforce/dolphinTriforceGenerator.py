@@ -2,7 +2,6 @@
 
 from generators.Generator import Generator
 import Command
-import systemFiles
 import os.path
 import configparser
 from os import environ

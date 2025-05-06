@@ -6,7 +6,6 @@ import os
 import platform
 import json
 import utils.videoMode as videoMode
-import controllersConfig
 from . import bigpemuConfig
 
 def is_x86_64():
@@ -399,11 +398,7 @@ class BigPEmuGenerator(Generator):
         else:
             commandArray = [bigpemuConfig.bigpemuBox64, bigpemuConfig.bigpemuBin, rom]
 
-        environment = {
-            "SDL_GAMECONTROLLERCONFIG": controllersConfig.generateSdlGameControllerConfig(playersControllers)
-        }
-
-        return Command.Command(array=commandArray, env=environment)
+        return Command.Command(array=commandArray)
 
     def getInGameRatio(self, config, gameResolution, rom):
         if "bigpemu_ratio" in config:

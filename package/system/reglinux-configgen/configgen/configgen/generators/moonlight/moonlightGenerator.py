@@ -4,7 +4,6 @@ from generators.Generator import Generator
 import Command
 import os.path
 import systemFiles
-import controllersConfig
 from . import moonlightConfig
 
 class MoonlightGenerator(Generator):
@@ -22,15 +21,10 @@ class MoonlightGenerator(Generator):
         commandArray.append(gameName)
         commandArray.append('-debug')
 
-        # write our own gamecontrollerdb.txt file before launching the game
-        dbfile = "/usr/share/moonlight/gamecontrollerdb.txt"
-        controllersConfig.writeSDLGameDBAllControllers(playersControllers, dbfile)
-
         return Command.Command(
             array=commandArray,
             env={
-                "XDG_DATA_DIRS": systemFiles.CONF,
-                "SDL_GAMECONTROLLERCONFIG": controllersConfig.generateSdlGameControllerConfig(playersControllers)
+                "XDG_DATA_DIRS": systemFiles.CONF
             }
         )
 
