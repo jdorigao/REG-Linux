@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 
-import sys
 import os
 import io
 import systemFiles
-import settings
-from Emulator import Emulator
 import configparser
 import subprocess
 
 from utils.logger import get_logger
 eslog = get_logger(__name__)
 
-ppssppConf     = systemFiles.CONF + '/ppsspp/PSP/SYSTEM'
-ppssppConfig   = ppssppConf + '/ppsspp.ini'
-ppssppControls = ppssppConf + '/controls.ini'
+ppssppConf      = systemFiles.CONF + '/ppsspp/PSP/SYSTEM'
+ppssppConfig    = ppssppConf + '/ppsspp.ini'
+ppssppControls  = ppssppConf + '/controls.ini'
+ppssppBin       = '/usr/bin/PPSSPP'
 
 def writePPSSPPConfig(system):
     iniConfig = configparser.ConfigParser(interpolation=None)

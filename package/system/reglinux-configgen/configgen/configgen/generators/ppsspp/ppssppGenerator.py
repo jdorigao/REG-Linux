@@ -2,33 +2,17 @@
 
 from generators.Generator import Generator
 import Command
-import os
 from . import ppssppConfig
-from . import ppssppControllers
 
 class PPSSPPGenerator(Generator):
 
-    # Main entry of the module
-    # Configure fba and return a command
     def generate(self, system, rom, playersControllers, metadata, guns, wheels, gameResolution):
+
+        # Write the PPSSPP config file
         ppssppConfig.writePPSSPPConfig(system)
 
-        # Remove the old gamecontrollerdb.txt file
-        dbpath = "/userdata/system/configs/ppsspp/gamecontrollerdb.txt"
-        if os.path.exists(dbpath):
-            os.remove(dbpath)
-
-        # Generate the controls.ini
-        for index in playersControllers :
-            controller = playersControllers[index]
-            # We only care about player 1
-            if controller.player != "1":
-                continue
-            ppssppControllers.generateControllerConfig(controller)
-            break
-
         # The command to run
-        commandArray = ['/usr/bin/PPSSPP']
+        commandArray = [ppssppConfig.ppssppBin]
         commandArray.append(rom)
         commandArray.append("--fullscreen")
 
@@ -41,25 +25,8 @@ class PPSSPPGenerator(Generator):
         if system.isOptSet('state_filename'):
             commandArray.append("--state={}".format(system.config['state_filename']))
 
-        # The next line is a reminder on how to quit PPSSPP with just the HK
-        #commandArray = ['/usr/bin/PPSSPP'], rom, "--escape-exit"]
-
-        # select the correct pad
-        nplayer = 1
-        for playercontroller, pad in sorted(playersControllers.items()):
-            if nplayer == 1:
-                commandArray.extend(["--njoy", str(pad.index)])
-            nplayer = nplayer +1
-
         return Command.Command(array=commandArray)
 
     @staticmethod
     def isLowResolution(gameResolution):
         return gameResolution["width"] <= 480 or gameResolution["height"] <= 480
-
-    # Show mouse on screen for the Config Screen
-    def getMouseMode(self, config, rom):
-        return True
-
-    def getInGameRatio(self, config, gameResolution, rom):
-        return 16/9
