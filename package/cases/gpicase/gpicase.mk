@@ -5,7 +5,7 @@
 ################################################################################
 GPICASE_VERSION = 0.2
 GPICASE_SOURCE =
-GPICASE_DEPENDENCIES = linux
+GPICASE_DEPENDENCIES = linux xpad-noone
 BR2_EXTERNAL_GPICASE_PATH=$(BR2_EXTERNAL_REGLINUX_PATH)/package/cases/gpicase
 
 define GPICASE_BUILD_CMDS
