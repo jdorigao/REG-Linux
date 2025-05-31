@@ -1,15 +1,13 @@
 diff --git a/package/wireplumber/wireplumber.mk b/package/wireplumber/wireplumber.mk
-index c8cc1ad106..4fff54383d 100644
+index c8cc1ad106..8818662059 100644
 --- a/package/wireplumber/wireplumber.mk
 +++ b/package/wireplumber/wireplumber.mk
-@@ -3,8 +3,8 @@
- # wireplumber
+@@ -4,7 +4,7 @@
  #
  ################################################################################
--
+ 
 -WIREPLUMBER_VERSION = 0.5.5
-+# reglinux - update
-+WIREPLUMBER_VERSION = 0.5.7
++WIREPLUMBER_VERSION = 0.5.10
  WIREPLUMBER_SOURCE = wireplumber-$(WIREPLUMBER_VERSION).tar.bz2
  WIREPLUMBER_SITE = https://gitlab.freedesktop.org/pipewire/wireplumber/-/archive/$(WIREPLUMBER_VERSION)
  WIREPLUMBER_LICENSE = MIT

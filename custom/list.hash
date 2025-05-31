@@ -87,6 +87,7 @@ ad422751e4a60689e4198ccf4441ae25  package/ncurses/ncurses.mk
 5469add2a569efa1603dfd2fbdab5f5e  package/opentyrian-data/Config.in
 7e501d1ce57a81b643283e62111b8c91  package/pcre2/Config.in
 c2df51f70ba99c291a3e795362431992  package/pigpio/pigpio.mk
+e2c298ca5a273f59f1b5a79fa008a539  package/pipewire/pipewire.hash
 556858c5d33691756cbc86f981eb397d  package/pipewire/pipewire.mk
 1ccf6198c069f7cee5b2dc722682948e  package/pulseaudio/pulseaudio.mk
 8b18ad0ab98ce546bdbda9ab22ce119a  package/python-gpiozero/Config.in

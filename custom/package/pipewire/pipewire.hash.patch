@@ -1,0 +1,10 @@
+diff --git a/package/pipewire/pipewire.hash b/package/pipewire/pipewire.hash
+index 9ffe95cbea..822a1ca682 100644
+--- a/package/pipewire/pipewire.hash
++++ b/package/pipewire/pipewire.hash
+@@ -1,4 +1,4 @@
+ # Locally calculated
+-sha256  3c00292f9a419610c9eeb6e45b958d460afb601ecc6894012574a3b9f118616a  pipewire-1.2.7.tar.bz2
++sha256  9041c8fe8e1042682939ad424b25d562026ee8166bc05d61bc94740bd0144c52  pipewire-1.4.4.tar.bz2
+ sha256  8909c319a7e27dbb33a15b9035f89ab3b7b2f6a12f8bcddc755206a8db1ada44  COPYING
+ sha256  be4be5d77424833edf31f53fc1f1cecb6996b9e2d747d9e6fb8f878362ebc92b  LICENSE
