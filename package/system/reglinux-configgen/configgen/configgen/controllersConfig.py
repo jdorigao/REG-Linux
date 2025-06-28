@@ -56,14 +56,22 @@ class Controller:
 # Load all controllers from the gamecontrollerdb.txt
 def loadAllControllersConfig():
     controllers = dict()
+    filepath = os.environ.get("SDL_GAMECONTROLLERCONFIG_FILE", "gamecontrollerdb.txt")
+    try:
+        with open(filepath, "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                parts = line.split(",")
+                if len(parts) >= 2:
+                    guid = parts[0]
+                    name = parts[1]
+                    config = ",".join(parts[2:]).strip()
+                    controllers[guid] = {"name": name, "config": config}
+    except FileNotFoundError:
+        print(f"File {filepath} not found.")
     return controllers
-
-
-# Load all controllers from the gamecontrollerdb.txt
-def loadAllControllersByNameConfig():
-    controllers = dict()
-    return controllers
-
 
 # Create a controller array with the player id as a key
 def loadControllerConfig(controllersInput):
