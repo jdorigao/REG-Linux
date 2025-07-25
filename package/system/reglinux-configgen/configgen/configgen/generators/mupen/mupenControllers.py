@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import os
-from controllersConfig import Input
+from controllers import Input
 from xml.dom import minidom
 from . import mupenConfig
 
@@ -249,4 +249,3 @@ def cleanPlayer(nplayer, iniConfig):
             iniConfig.add_section(section)
         iniConfig.set(section, 'Version', '2')
         iniConfig.set(section, 'plugged', "False")
-

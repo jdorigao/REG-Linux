@@ -6,6 +6,8 @@ with the appropriate configurations.
 """
 
 import os
+from controllers import Evmapy
+
 profiler = None
 
 # Profiling Instructions:
@@ -261,6 +263,7 @@ def start_rom(args, maxnbplayers, rom, romConfiguration):
 
         eslog.debug("==== Running emulator ====")
         try:
+            Evmapy.start(args.system, system.config['emulator'], system.config.get("core", ""), romConfiguration, playersControllers, guns)
             # Start a window compositor like Wayland or X11 if required by the emulator.
             if generator.requiresWayland() or generator.requiresX11():
                 if 'WAYLAND_DISPLAY' not in os.environ:
@@ -294,6 +297,7 @@ def start_rom(args, maxnbplayers, rom, romConfiguration):
             if profiler:
                 profiler.enable()
         finally:
+            Evmapy.stop()
             # Stop the compositor after the emulator exits.
             if generator.requiresWayland() or generator.requiresX11():
                 windowsManager.stop_compositor(generator, system)
@@ -392,7 +396,6 @@ def getHudBezel(system, generator, rom, gameResolution, bordersSize):
         eslog.info(f"Bezel size read from {overlay_png_file}")
 
     # Define validation thresholds.
-    max_cover = 0.05  # 5% max coverage of the game area.
     max_ratio_delta = 0.01 # Max difference between screen and bezel aspect ratio.
 
     screen_ratio = gameResolution["width"] / gameResolution["height"]
@@ -640,7 +643,7 @@ if __name__ == '__main__':
     try:
         # Call the main function with parsed arguments.
         exitcode = main(args, maxnbplayers)
-    except Exception as e:
+    except Exception:
         eslog.error("An unhandled exception occurred in configgen:", exc_info=True)
 
     # --- Finalization ---
