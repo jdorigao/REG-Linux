@@ -1,10 +1,15 @@
-import utils.videoMode as videoMode
+from utils.videoMode import getRefreshRate
+from settings.settingsFile import JSONSettings
+from .bigpemuControllers import setBigPEmuControllers
 from systemFiles import HOME
 
-BIGPEMU_CONFIG_PATH = HOME + '/.bigpemu_userdata/BigPEmuConfig.bigpcfg'
+BIGPEMU_CONFIG_DIR = HOME + '/.bigpemu_userdata'
+BIGPEMU_CONFIG_PATH = BIGPEMU_CONFIG_DIR + '/BigPEmuConfig.bigpcfg'
 BIGPEMU_BIN_PATH = '/usr/bigpemu/bigpemu'
 
-def setBigemuConfig(bigpemuConfig, system, gameResolution):
+def setBigemuConfig(system, gameResolution, playersControllers):
+    bigpemuConfig = JSONSettings(BIGPEMU_CONFIG_PATH)
+
     # Ensure the necessary structure in the config
     if "BigPEmuConfig" not in bigpemuConfig:
         bigpemuConfig["BigPEmuConfig"] = {}
@@ -16,7 +21,7 @@ def setBigemuConfig(bigpemuConfig, system, gameResolution):
     bigpemuConfig["BigPEmuConfig"]["Video"]["ScreenScaling"] = 5
     bigpemuConfig["BigPEmuConfig"]["Video"]["DisplayWidth"] = gameResolution["width"]
     bigpemuConfig["BigPEmuConfig"]["Video"]["DisplayHeight"] = gameResolution["height"]
-    bigpemuConfig["BigPEmuConfig"]["Video"]["DisplayFrequency"] = videoMode.getRefreshRate()
+    bigpemuConfig["BigPEmuConfig"]["Video"]["DisplayFrequency"] = getRefreshRate()
 
     # User selections
     if system.isOptSet("bigpemu_vsync"):
@@ -28,6 +33,12 @@ def setBigemuConfig(bigpemuConfig, system, gameResolution):
     else:
         bigpemuConfig["BigPEmuConfig"]["Video"]["ScreenAspect"] = 2
     bigpemuConfig["BigPEmuConfig"]["Video"]["LockAspect"] = 1
+
+    # Set controllers
+    setBigPEmuControllers(bigpemuConfig, playersControllers)
+
+    # Save the updated configuration
+    bigpemuConfig.write()
 
 def getInGameRatio(self, config, gameResolution, rom):
     if "bigpemu_ratio" in config:
