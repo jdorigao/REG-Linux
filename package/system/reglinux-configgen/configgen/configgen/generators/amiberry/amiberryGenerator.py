@@ -2,7 +2,6 @@ from generators.Generator import Generator
 from Command import Command
 from zipfile import ZipFile
 from os import path, makedirs, chdir
-from settings.unixSettings import UnixSettings
 from systemFiles import CONF
 
 AMIBERRY_DIR = CONF + '/amiberry'
@@ -17,7 +16,6 @@ eslog = get_logger(__name__)
 class AmiberryGenerator(Generator):
 
     def generate(self, system, rom, playersControllers, metadata, guns, wheels, gameResolution):
-        retroconfig = UnixSettings(AMIBERRY_CONFIG_PATH, separator=' ')
         if not path.exists(path.dirname(AMIBERRY_CONFIG_PATH)):
             makedirs(path.dirname(AMIBERRY_CONFIG_PATH))
 
@@ -53,8 +51,6 @@ class AmiberryGenerator(Generator):
                 # Use disk folder as floppy path
                 romPathIndex = rom.rfind('/')
                 commandArray.append("amiberry.floppy_path="+rom[0:romPathIndex])
-
-            retroconfig.write()
 
             if not path.exists(AMIBERRY_INPUTS_DIR):
                 makedirs(AMIBERRY_INPUTS_DIR)
