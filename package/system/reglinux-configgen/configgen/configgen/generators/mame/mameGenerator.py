@@ -1,6 +1,6 @@
 from generators.Generator import Generator
 from Command import Command
-import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import parse
 import controllers as controllersConfig
 from shutil import rmtree, copy2
 from utils.bezels import (
@@ -616,7 +616,7 @@ class MameGenerator(Generator):
                 if softList != "":
                     softListFile = "/usr/bin/mame/hash/{}.xml".format(softList)
                     if path.exists(softListFile):
-                        softwarelist = ET.parse(softListFile)
+                        softwarelist = parse(softListFile)
                         for software in softwarelist.findall("software"):
                             if software.attrib != {}:
                                 if software.get("name") == romName:
@@ -897,6 +897,7 @@ class MameGenerator(Generator):
             f.close()
 
         if system.isOptSet("bezel.tattoo") and system.config["bezel.tattoo"] != "0":
+            tattoo_file = None
             if system.config["bezel.tattoo"] == "system":
                 try:
                     tattoo_file = (
