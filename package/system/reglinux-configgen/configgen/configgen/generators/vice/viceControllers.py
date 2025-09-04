@@ -1,4 +1,5 @@
 from os import path, makedirs
+from .viceConfig import VICE_CONTROLLER_PATH
 
 # inputtype:
 # 0      axis
@@ -37,17 +38,15 @@ viceJoystick = {
 
 
 # Create the controller configuration file
-def generateControllerConfig(system, viceConfigFile, playersControllers):
-    # vjm file
-    viceFile = viceConfigFile + "/sdl-joymap.vjm"
+def setViceControllers(system, playersControllers):
     # vic20 uses a slightly different port
     if system.config["core"] == "xvic":
         joy_port = "0"
     else:
         joy_port = "1"
 
-    if not path.exists(path.dirname(viceFile)):
-        makedirs(path.dirname(viceFile))
+    if not path.exists(path.dirname(VICE_CONTROLLER_PATH)):
+        makedirs(path.dirname(VICE_CONTROLLER_PATH))
 
     listVice = []
     listVice.append("# REG-Linux configured controllers")
@@ -69,7 +68,7 @@ def generateControllerConfig(system, viceConfigFile, playersControllers):
         listVice.append("")
         nplayer += 1
 
-    f = open(viceFile, "w")
+    f = open(VICE_CONTROLLER_PATH, "w")
     for i in range(len(listVice)):
         f.write(str(listVice[i]) + "\n")
     f.write
