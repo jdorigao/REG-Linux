@@ -9,6 +9,10 @@ class AzaharGenerator(Generator):
     def generate(
         self, system, rom, playersControllers, metadata, guns, wheels, gameResolution
     ):
+        # this emulator/core requires X server to run
+        def requiresX11(self):
+            return True
+
         # Load existing config or create a new one
         azaharConfig = UnixSettings(AZAHAR_CONFIG_PATH)
 
