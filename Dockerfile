@@ -1,82 +1,39 @@
-FROM ubuntu:24.04
+FROM ubuntu:noble-20250910
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && \
-    apt-get remove -y '*cloud*' '*firefox*' '*chrome*' '*dotnet*' '*php*' && \
-    apt-get install -y \
-    ccache \
-    which \
-    sed \
-    binutils \
-    build-essential \
-    diffutils \
-    coreutils \
-    bash \
-    patch \
-    gzip \
-    bzip2 \
-    perl \
-    tar \
-    cpio \
-    unzip \
-    rsync \
-    bc \
-    findutils \
-    gawk \
-    bsdmainutils \
-    make \
-    cmake \
-    git \
-    libncurses6 \
-    libncurses-dev \
-    libssl-dev \
-    mercurial \
-    texinfo \
-    zip \
-    default-jre \
-    imagemagick \
-    subversion \
-    autoconf \
-    automake \
-    bison \
-    scons \
-    libglib2.0-dev \
-    mtools \
-    u-boot-tools \
-    flex \
-    wget \
-    dosfstools \
-    libtool \
-    device-tree-compiler \
-    gettext \
-    locales \
-    graphviz \
-    python3 \
-    python3-numpy \
-    python3-matplotlib \
-    gcc-multilib \
-    g++-multilib \
-    musl-dev \
-    musl-tools \
-    libgnutls28-dev \
-    libcrypt-dev \
-    libgdbm-dev \
-    libreadline-dev \
-    libc6-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# The container has no package lists, so need to update first
+RUN apt-get -o APT::Retries=3 update -y
 
-# Set locale
+RUN apt-get -o APT::Retries=3 install -y --no-install-recommends \
+    bc \
+    build-essential \
+    ca-certificates \
+    cmake \
+    cpio \
+    file \
+    gawk \
+    g++-multilib \
+    gcc-multilib \
+    git \
+    libssl-dev \
+    locales \
+    patch \
+    rsync \
+    unzip \
+    wget \
+    && \
+    apt-get remove -y '*cloud*' '*firefox*' '*chrome*' '*dotnet*' '*php*' && \
+    apt-get -y autoremove && \
+    apt-get -y clean
+
+# To be able to generate a toolchain with locales, enable one UTF-8 locale
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 ENV TZ=Europe/Paris
-
-# Workaround host-tar configure error
-ENV FORCE_UNSAFE_CONFIGURE=1
 
 RUN mkdir -p /build
 WORKDIR /build
