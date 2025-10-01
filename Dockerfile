@@ -8,18 +8,25 @@ RUN apt-get -o APT::Retries=3 update -y
 RUN apt-get -o APT::Retries=3 install -y --no-install-recommends \
     bc \
     build-essential \
+    bzr \
     ca-certificates \
     cmake \
     cpio \
+    curl \
+    cvs \
     file \
-    gawk \
+    g++ \
     g++-multilib \
+    gcc \
     gcc-multilib \
     git \
     libssl-dev \
     locales \
+    mercurial \
     patch \
     rsync \
+    shellcheck \
+    subversion \
     unzip \
     wget \
     && \
