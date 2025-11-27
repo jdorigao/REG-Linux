@@ -1,0 +1,164 @@
+From 437adb802d920f3de8e6f256d459d9f14912c584 Mon Sep 17 00:00:00 2001
+From: Juliano Dorigão <jdorigao@gmail.com>
+Date: Wed, 26 Nov 2025 11:28:32 -0400
+Subject: [PATCH] Fix: Handle errors and add checks in joypad_gpio_setup
+
+- Handle errors when getting GPIOs from device tree.
+- Add checks for GPIO validity and DTS node counts.
+- Add more logging and information messages.
+---
+ drivers/input/joystick/gameforce-joypad.c | 111 +++++++++++++++++-----
+ 1 file changed, 85 insertions(+), 26 deletions(-)
+
+diff --git a/drivers/input/joystick/gameforce-joypad.c b/drivers/input/joystick/gameforce-joypad.c
+index 75d5d2920..b29796795 100644
+--- a/drivers/input/joystick/gameforce-joypad.c
++++ b/drivers/input/joystick/gameforce-joypad.c
+@@ -741,17 +741,25 @@ static int joypad_gpio_setup(struct device *dev, struct joypad *joypad)
+ {
+ 	struct device_node *node, *pp;
+ 	int nbtn;
++	int ret = 0; // Variable to store return code
+ 
+ 	node = dev->of_node;
+-	if (!node)
++	if (!node) {
++		dev_err(dev, "%s: No device tree node found\n", __func__);
+ 		return -ENODEV;
++	}
++
++	if (joypad->bt_gpio_count <= 0) {
++		dev_info(dev, "%s: No GPIO buttons defined in DT\n", __func__); // Inform if no GPIOs are defined
++		return 0; // Return success if no GPIOs to configure
++	}
+ 
++	// Allocate memory for GPIO array
+ 	joypad->gpios = devm_kzalloc(dev, joypad->bt_gpio_count *
+ 				sizeof(struct bt_gpio), GFP_KERNEL);
+-
+ 	if (!joypad->gpios) {
+-		dev_err(dev, "%s devm_kzmalloc error!", __func__);
+-		return -ENOMEM;
++		dev_err(dev, "%s: devm_kzmalloc for gpios failed\n", __func__);
++		return -ENOMEM; // Return -ENOMEM if allocation fails
+ 	}
+ 
+ 	nbtn = 0;
+@@ -760,42 +768,93 @@ static int joypad_gpio_setup(struct device *dev, struct joypad *joypad)
+ 		struct bt_gpio *gpio = &joypad->gpios[nbtn++];
+ 		int error;
+ 
++		// --- Correction Start ---
++		if (nbtn > joypad->bt_gpio_count) {
++			dev_err(dev, "%s: Child node count mismatch, nbtn=%d, bt_gpio_count=%d\n", __func__, nbtn, joypad->bt_gpio_count);
++			of_node_put(pp); // Release current node before exiting
++			ret = -EINVAL;
++			goto err_free_gpios; // Jump to cleanup
++		}
++		// --- Correction End ---
++
++		// Get GPIO number and flags from DTS
+ 		gpio->num = of_get_gpio_flags(pp, 0, &flags);
+ 		if (gpio->num < 0) {
+-			error = gpio->num;
+-			dev_err(dev, "Failed to get gpio flags, error: %d\n",
+-				error);
+-			return error;
++			error = gpio->num; // Store error code returned by of_get_gpio_flags
++			dev_err(dev, "Failed to get GPIO flags for node '%s', error: %d\n", of_node_full_name(pp), error);
++			ret = error; // Store error
++			of_node_put(pp); // Release current node
++			goto err_free_gpios; // Jump to cleanup
+ 		}
+ 
+-		/* gpio active level(key press level) */
++		// Check if GPIO number is valid
++		if (!gpio_is_valid(gpio->num)) {
++			dev_err(dev, "GPIO number %d for node '%s' is invalid\n", gpio->num, of_node_full_name(pp));
++			ret = -EINVAL; // Invalid value error
++			of_node_put(pp); // Release current node
++			goto err_free_gpios; // Jump to cleanup
++		}
++
++		// Set active level (press level)
+ 		gpio->active_level = (flags & OF_GPIO_ACTIVE_LOW) ? 0 : 1;
+ 
++		// Get GPIO label (optional)
+ 		gpio->label = of_get_property(pp, "label", NULL);
++		if (!gpio->label) {
++			gpio->label = "unlabeled_gpio"; // Set default label if none exists
++			dev_warn(dev, "GPIO node '%s' has no 'label' property, using '%s'\n", of_node_full_name(pp), gpio->label);
++		}
+ 
+-		if (gpio_is_valid(gpio->num)) {
+-			error = devm_gpio_request_one(dev, gpio->num,
+-						      GPIOF_IN, gpio->label);
+-			if (error < 0) {
+-				dev_err(dev,
+-					"Failed to request GPIO %d, error %d\n",
+-					gpio->num, error);
+-				return error;
+-			}
++		// Request GPIO from kernel with input direction
++		// This is the most likely point of failure, adding more checks
++		error = devm_gpio_request_one(dev, gpio->num, GPIOF_IN, gpio->label);
++		if (error < 0) {
++			dev_err(dev, "Failed to request GPIO %d (%s), node '%s', error %d\n",
++				gpio->num, gpio->label, of_node_full_name(pp), error);
++			ret = error; // Store error
++			of_node_put(pp); // Release current node
++			goto err_free_gpios; // Jump to cleanup
+ 		}
++
++		dev_info(dev, "Successfully requested GPIO %d (%s) for node '%s'\n", gpio->num, gpio->label, of_node_full_name(pp));
++
++		// Read Linux code for button event
+ 		if (of_property_read_u32(pp, "linux,code", &gpio->linux_code)) {
+-			dev_err(dev, "Button without keycode: 0x%x\n",
+-				gpio->num);
+-			return -EINVAL;
++			dev_err(dev, "GPIO node '%s' (GPIO %d) has no 'linux,code' property\n", of_node_full_name(pp), gpio->num);
++			ret = -EINVAL; // Invalid value error
++			of_node_put(pp); // Release current node
++			goto err_free_gpios; // Jump to cleanup
+ 		}
+-		if (of_property_read_u32(pp, "linux,input-type",
+-				&gpio->report_type))
++
++		// Read event type (if not specified, assume EV_KEY)
++		if (of_property_read_u32(pp, "linux,input-type", &gpio->report_type))
+ 			gpio->report_type = EV_KEY;
+ 	}
+-	if (nbtn == 0)
+-		return -EINVAL;
+ 
+-	return	0;
++	// Check if the actual number of nodes read matches the expected count
++	if (nbtn != joypad->bt_gpio_count) {
++		dev_err(dev, "%s: Mismatch between expected GPIO count (%d) and actual nodes parsed (%d)\n", __func__, joypad->bt_gpio_count, nbtn);
++		ret = -EINVAL;
++		goto err_free_gpios; // Jump to cleanup
++	}
++
++	dev_info(dev, "%s: Successfully setup %d GPIO buttons\n", __func__, nbtn);
++	return 0; // Return success
++
++	// Error label for freeing allocation on failure
++err_free_gpios:
++	// devm_kzalloc is automatically freed when platform is unregistered, so no need to manually free here
++	// But we should ensure joypad->gpios and joypad->bt_gpio_count are consistent if function fails.
++	// Since failure occurs during initialization, the driver probe will fail if this function fails,
++	// and memory will be freed automatically.
++	// If function returns with error, the driver probe will fail and the device will not be initialized.
++	// Therefore, goto is sufficient to ensure error is returned.
++	// We can clear GPIO counter to reflect actual state.
++	if (ret) {
++		joypad->bt_gpio_count = 0; // Mark as 0 GPIOs configured on error
++		joypad->gpios = NULL;      // Mark pointer as invalid
++	}
++	return ret; // Return stored error code
+ }
+ 
+ /*----------------------------------------------------------------------------*/
+-- 
+2.52.0
