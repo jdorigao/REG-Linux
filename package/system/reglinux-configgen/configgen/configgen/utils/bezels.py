@@ -1,5 +1,5 @@
 from os import path
-from systemFiles import OVERLAY_USER, OVERLAY_SYSTEM
+from configgen.systemFiles import OVERLAY_USER, OVERLAY_SYSTEM
 import struct
 from PIL import Image, ImageOps
 from .videoMode import getAltDecoration
@@ -39,6 +39,7 @@ def _save_to_cache(image_path, cache_key):
     """
     cached_path = path.join(BEZEL_CACHE_DIR, f"{cache_key}.png")
     import shutil
+
     shutil.copy2(image_path, cached_path)
 
 
@@ -48,6 +49,7 @@ def clear_bezel_cache():
     """
     import os
     import glob
+
     files = glob.glob(path.join(BEZEL_CACHE_DIR, "*.png"))
     for file in files:
         try:
@@ -163,6 +165,16 @@ def resizeImage(
     """
     Resize a bezel image to match screen size, maintaining alpha if needed.
     """
+    # Validate input parameters
+    if not input_png or not output_png:
+        eslog.error("Input or output path is None or empty")
+        raise ValueError("Input or output path is None or empty")
+
+    # Validate input file exists
+    if not path.exists(input_png):
+        eslog.error(f"Input image does not exist: {input_png}")
+        raise FileNotFoundError(f"Input image does not exist: {input_png}")
+
     # Generate cache key based on input parameters
     cache_key = _generate_cache_key(
         "resize", input_png, screen_width, screen_height, bezel_stretch
@@ -173,33 +185,76 @@ def resizeImage(
     if cached_path:
         eslog.debug(f"Using cached resized bezel: {cached_path}")
         # Copy cached image to output location
-        import shutil
-        shutil.copy2(cached_path, output_png)
+        try:
+            import shutil
+
+            shutil.copy2(cached_path, output_png)
+        except PermissionError as e:
+            eslog.error(
+                f"Permission denied copying cached bezel from {cached_path} to {output_png}: {e}"
+            )
+            raise
+        except OSError as e:
+            eslog.error(
+                f"OS error copying cached bezel from {cached_path} to {output_png}: {e}"
+            )
+            raise
         return
 
-    imgin = Image.open(input_png)
+    # Create output directory if it doesn't exist
+    output_dir = path.dirname(output_png)
+    if output_dir and not path.exists(output_dir):
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+        except PermissionError as e:
+            eslog.error(
+                f"Permission denied creating output directory {output_dir}: {e}"
+            )
+            raise
+        except OSError as e:
+            eslog.error(f"OS error creating output directory {output_dir}: {e}")
+            raise
+
+    try:
+        imgin = Image.open(input_png)
+    except (IOError, OSError, Image.UnidentifiedImageError) as e:
+        eslog.error(f"Error opening input image {input_png}: {e}")
+        raise
+
     fillcolor = "black"
     eslog.debug(f"Resizing bezel: image mode {imgin.mode}")
     if imgin.mode != "RGBA":
-        alphaPaste(
-            input_png,
-            output_png,
-            imgin,
-            fillcolor,
-            (screen_width, screen_height),
-            bezel_stretch,
-        )
+        try:
+            alphaPaste(
+                input_png,
+                output_png,
+                imgin,
+                fillcolor,
+                (screen_width, screen_height),
+                bezel_stretch,
+            )
+        except Exception as e:
+            eslog.error(f"Error in alpha paste operation for {input_png}: {e}")
+            raise
     else:
-        imgout = resize_with_fill(
-            imgin,
-            (screen_width, screen_height),
-            stretch=bezel_stretch,
-            fillcolor=fillcolor,
-        )
-        imgout.save(output_png, mode="RGBA", format="PNG")
+        try:
+            imgout = resize_with_fill(
+                imgin,
+                (screen_width, screen_height),
+                stretch=bezel_stretch,
+                fillcolor=fillcolor,
+            )
+            imgout.save(output_png, mode="RGBA", format="PNG")
+        except (IOError, OSError) as e:
+            eslog.error(f"Error saving output image {output_png}: {e}")
+            raise
 
     # Save the result to cache
-    _save_to_cache(output_png, cache_key)
+    try:
+        _save_to_cache(output_png, cache_key)
+    except Exception as e:
+        eslog.warning(f"Failed to save bezel to cache: {e}")
+        # Continue execution even if cache save fails
 
 
 def padImage(
@@ -214,32 +269,93 @@ def padImage(
     """
     Pad the bezel image to match screen size.
     """
-    imgin = Image.open(input_png)
+    # Validate input parameters
+    if not input_png or not output_png:
+        eslog.error("Input or output path is None or empty")
+        raise ValueError("Input or output path is None or empty")
+
+    # Validate input file exists
+    if not path.exists(input_png):
+        eslog.error(f"Input image does not exist: {input_png}")
+        raise FileNotFoundError(f"Input image does not exist: {input_png}")
+
+    # Create output directory if it doesn't exist
+    output_dir = path.dirname(output_png)
+    if output_dir and not path.exists(output_dir):
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+        except PermissionError as e:
+            eslog.error(
+                f"Permission denied creating output directory {output_dir}: {e}"
+            )
+            raise
+        except OSError as e:
+            eslog.error(f"OS error creating output directory {output_dir}: {e}")
+            raise
+
+    try:
+        imgin = Image.open(input_png)
+    except (IOError, OSError, Image.UnidentifiedImageError) as e:
+        eslog.error(f"Error opening input image {input_png}: {e}")
+        raise
+
     fillcolor = "black"
     eslog.debug(f"Padding bezel: image mode {imgin.mode}")
     if imgin.mode != "RGBA":
-        alphaPaste(
-            input_png,
-            output_png,
-            imgin,
-            fillcolor,
-            (screen_width, screen_height),
-            bezel_stretch,
-        )
+        try:
+            alphaPaste(
+                input_png,
+                output_png,
+                imgin,
+                fillcolor,
+                (screen_width, screen_height),
+                bezel_stretch,
+            )
+        except Exception as e:
+            eslog.error(f"Error in alpha paste operation for {input_png}: {e}")
+            raise
     else:
-        imgout = resize_with_fill(
-            imgin,
-            (screen_width, screen_height),
-            stretch=bezel_stretch,
-            fillcolor=fillcolor,
-        )
-        imgout.save(output_png, mode="RGBA", format="PNG")
+        try:
+            imgout = resize_with_fill(
+                imgin,
+                (screen_width, screen_height),
+                stretch=bezel_stretch,
+                fillcolor=fillcolor,
+            )
+            imgout.save(output_png, mode="RGBA", format="PNG")
+        except (IOError, OSError) as e:
+            eslog.error(f"Error saving output image {output_png}: {e}")
+            raise
 
 
 def tatooImage(input_png, output_png, system):
     """
     Overlay a controller image ("tattoo") on top of the bezel, depending on system config.
     """
+    # Validate input parameters
+    if not input_png or not output_png:
+        eslog.error("Input or output path is None or empty")
+        raise ValueError("Input or output path is None or empty")
+
+    # Validate input file exists
+    if not path.exists(input_png):
+        eslog.error(f"Input image does not exist: {input_png}")
+        raise FileNotFoundError(f"Input image does not exist: {input_png}")
+
+    # Create output directory if it doesn't exist
+    output_dir = path.dirname(output_png)
+    if output_dir and not path.exists(output_dir):
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+        except PermissionError as e:
+            eslog.error(
+                f"Permission denied creating output directory {output_dir}: {e}"
+            )
+            raise
+        except OSError as e:
+            eslog.error(f"OS error creating output directory {output_dir}: {e}")
+            raise
+
     # Generate cache key based on input parameters
     tattoo_config = system.config.get("bezel.tattoo", "generic")
     tattoo_file = None
@@ -247,16 +363,20 @@ def tatooImage(input_png, output_png, system):
         tattoo_file = f"/usr/share/reglinux/controller-overlays/{system.name}.png"
         if not path.exists(tattoo_file):
             tattoo_file = "/usr/share/reglinux/controller-overlays/generic.png"
-    elif tattoo_config == "custom" and path.exists(system.config.get("bezel.tattoo_file", "")):
+    elif tattoo_config == "custom" and path.exists(
+        system.config.get("bezel.tattoo_file", "")
+    ):
         tattoo_file = system.config["bezel.tattoo_file"]
     else:
         tattoo_file = "/usr/share/reglinux/controller-overlays/generic.png"
 
     cache_key = _generate_cache_key(
-        "tattoo", input_png, tattoo_file,
+        "tattoo",
+        input_png,
+        tattoo_file,
         system.config.get("bezel.resize_tattoo", "default"),
         system.config.get("bezel.tattoo_corner", "NW"),
-        fast_image_size(input_png)  # Include input image size in cache key
+        fast_image_size(input_png),  # Include input image size in cache key
     )
 
     # Check if image is already cached
@@ -264,8 +384,20 @@ def tatooImage(input_png, output_png, system):
     if cached_path:
         eslog.debug(f"Using cached tattooed bezel: {cached_path}")
         # Copy cached image to output location
-        import shutil
-        shutil.copy2(cached_path, output_png)
+        try:
+            import shutil
+
+            shutil.copy2(cached_path, output_png)
+        except PermissionError as e:
+            eslog.error(
+                f"Permission denied copying cached tattooed bezel from {cached_path} to {output_png}: {e}"
+            )
+            raise
+        except OSError as e:
+            eslog.error(
+                f"OS error copying cached tattooed bezel from {cached_path} to {output_png}: {e}"
+            )
+            raise
         return
 
     tattoo = None
@@ -285,14 +417,14 @@ def tatooImage(input_png, output_png, system):
             tattoo = Image.open(tattoo_file)
     except (IOError, OSError, Image.UnidentifiedImageError) as e:
         eslog.error(f"Error opening tattoo image: {tattoo_file} - {str(e)}")
-        return
+        raise
 
     back = Image.open(input_png).convert("RGBA")
     tattoo = tattoo.convert("RGBA") if tattoo else None
 
     if not tattoo:
         eslog.error("Tattoo image could not be loaded, skipping tattoo overlay.")
-        return
+        raise Exception("Tattoo image could not be loaded")
 
     w, h = fast_image_size(input_png)
     tw, th = fast_image_size(tattoo_file)
@@ -325,10 +457,18 @@ def tatooImage(input_png, output_png, system):
     back = Image.alpha_composite(back, tattooCanvas)
     imgnew = Image.new("RGBA", (w, h), (0, 0, 0, 255))
     imgnew.paste(back, (0, 0, w, h))
-    imgnew.save(output_png, mode="RGBA", format="PNG")
+    try:
+        imgnew.save(output_png, mode="RGBA", format="PNG")
+    except (IOError, OSError) as e:
+        eslog.error(f"Error saving tattooed output image {output_png}: {e}")
+        raise
 
     # Save the result to cache
-    _save_to_cache(output_png, cache_key)
+    try:
+        _save_to_cache(output_png, cache_key)
+    except Exception as e:
+        eslog.warning(f"Failed to save tattooed bezel to cache: {e}")
+        # Continue execution even if cache save fails
 
 
 def alphaPaste(input_png, output_png, imgin, fillcolor, screensize, bezel_stretch):
@@ -336,8 +476,38 @@ def alphaPaste(input_png, output_png, imgin, fillcolor, screensize, bezel_stretc
     Paste the alpha channel from an image into a resized canvas.
     Handles non-RGBA images and crops to match aspect ratio.
     """
-    imgin = Image.open(input_png)
+    # Validate input parameters
+    if not input_png or not output_png:
+        eslog.error("Input or output path is None or empty")
+        raise ValueError("Input or output path is None or empty")
+
+    # Validate input file exists
+    if not path.exists(input_png):
+        eslog.error(f"Input image does not exist: {input_png}")
+        raise FileNotFoundError(f"Input image does not exist: {input_png}")
+
+    # Create output directory if it doesn't exist
+    output_dir = path.dirname(output_png)
+    if output_dir and not path.exists(output_dir):
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+        except PermissionError as e:
+            eslog.error(
+                f"Permission denied creating output directory {output_dir}: {e}"
+            )
+            raise
+        except OSError as e:
+            eslog.error(f"OS error creating output directory {output_dir}: {e}")
+            raise
+
+    try:
+        imgin = Image.open(input_png)
+    except (IOError, OSError, Image.UnidentifiedImageError) as e:
+        eslog.error(f"Error opening input image {input_png}: {e}")
+        raise
+
     if "transparency" not in imgin.info:
+        eslog.error(f"Input image {input_png} has no transparency channel")
         raise Exception("no transparent pixels in the image, abort")
 
     alpha = imgin.split()[-1]
@@ -354,21 +524,25 @@ def alphaPaste(input_png, output_png, imgin, fillcolor, screensize, bezel_stretc
 
     imgnew = Image.new("RGBA", (ix, iy), (0, 0, 0, 255))
     imgnew.paste(alpha, (0, 0, ix, iy))
-    imgout = resize_with_fill(
-        imgnew, screensize, stretch=bezel_stretch, fillcolor=fillcolor
-    )
-    imgout.save(output_png, mode="RGBA", format="PNG")
+    try:
+        imgout = resize_with_fill(
+            imgnew, screensize, stretch=bezel_stretch, fillcolor=fillcolor
+        )
+        imgout.save(output_png, mode="RGBA", format="PNG")
+    except (IOError, OSError) as e:
+        eslog.error(f"Error saving alpha pasted output image {output_png}: {e}")
+        raise
 
 
-def gunBordersSize(bordersSize):
+def gun_borders_size(borders_size):
     """
     Return preset values for gun border sizes depending on text config.
     """
-    if bordersSize == "thin":
+    if borders_size == "thin":
         return 1, 0
-    if bordersSize == "medium":
+    if borders_size == "medium":
         return 2, 0
-    if bordersSize == "big":
+    if borders_size == "big":
         return 2, 1
     return 0, 0
 
@@ -384,10 +558,39 @@ def gunBorderImage(
     """
     Draws outer and inner borders on the bezel image for lightgun detection.
     """
+    # Validate input parameters
+    if not input_png or not output_png:
+        eslog.error("Input or output path is None or empty")
+        raise ValueError("Input or output path is None or empty")
+
+    # Validate input file exists
+    if not path.exists(input_png):
+        eslog.error(f"Input image does not exist: {input_png}")
+        raise FileNotFoundError(f"Input image does not exist: {input_png}")
+
+    # Create output directory if it doesn't exist
+    output_dir = path.dirname(output_png)
+    if output_dir and not path.exists(output_dir):
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+        except PermissionError as e:
+            eslog.error(
+                f"Permission denied creating output directory {output_dir}: {e}"
+            )
+            raise
+        except OSError as e:
+            eslog.error(f"OS error creating output directory {output_dir}: {e}")
+            raise
+
     # Generate cache key based on input parameters
     cache_key = _generate_cache_key(
-        "gunborder", input_png, innerBorderSizePer, outerBorderSizePer,
-        innerBorderColor, outerBorderColor, fast_image_size(input_png)
+        "gunborder",
+        input_png,
+        innerBorderSizePer,
+        outerBorderSizePer,
+        innerBorderColor,
+        outerBorderColor,
+        fast_image_size(input_png),
     )
 
     # Check if image is already cached
@@ -395,8 +598,20 @@ def gunBorderImage(
     if cached_path:
         eslog.debug(f"Using cached bezel with gun borders: {cached_path}")
         # Copy cached image to output location
-        import shutil
-        shutil.copy2(cached_path, output_png)
+        try:
+            import shutil
+
+            shutil.copy2(cached_path, output_png)
+        except PermissionError as e:
+            eslog.error(
+                f"Permission denied copying cached gun border bezel from {cached_path} to {output_png}: {e}"
+            )
+            raise
+        except OSError as e:
+            eslog.error(
+                f"OS error copying cached gun border bezel from {cached_path} to {output_png}: {e}"
+            )
+            raise
         w, h = fast_image_size(input_png)
         outerBorderSize = max(1, h * outerBorderSizePer // 100)
         innerBorderSize = max(1, w * innerBorderSizePer // 100)
@@ -405,6 +620,10 @@ def gunBorderImage(
     from PIL import ImageDraw
 
     w, h = fast_image_size(input_png)
+    if w <= 0 or h <= 0:
+        eslog.error(f"Invalid image dimensions for {input_png}: {w}x{h}")
+        raise ValueError(f"Invalid image dimensions for {input_png}: {w}x{h}")
+
     outerBorderSize = max(1, h * outerBorderSizePer // 100)
     outerShapes = [
         [(0, 0), (w, outerBorderSize)],
@@ -433,7 +652,12 @@ def gunBorderImage(
         ],
     ]
 
-    back = Image.open(input_png)
+    try:
+        back = Image.open(input_png)
+    except (IOError, OSError, Image.UnidentifiedImageError) as e:
+        eslog.error(f"Error opening input image {input_png}: {e}")
+        raise
+
     imgnew = Image.new("RGBA", (w, h), (0, 0, 0, 255))
     imgnew.paste(back, (0, 0, w, h))
     draw = ImageDraw.Draw(imgnew)
@@ -443,10 +667,18 @@ def gunBorderImage(
     for shape in innerShapes:
         draw.rectangle(shape, fill=innerBorderColor)
 
-    imgnew.save(output_png, mode="RGBA", format="PNG")
+    try:
+        imgnew.save(output_png, mode="RGBA", format="PNG")
+    except (IOError, OSError) as e:
+        eslog.error(f"Error saving gun border image {output_png}: {e}")
+        raise
 
     # Save the result to cache
-    _save_to_cache(output_png, cache_key)
+    try:
+        _save_to_cache(output_png, cache_key)
+    except Exception as e:
+        eslog.warning(f"Failed to save gun border bezel to cache: {e}")
+        # Continue execution even if cache save fails
 
     return outerBorderSize + innerBorderSize
 
